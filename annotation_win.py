@@ -128,33 +128,20 @@ class QLineEditMask(QMainWindow):
     def rectborder_color_picker(self):
         dialog = QColorDialog()
         color = dialog.getColor(options=QColorDialog.ShowAlphaChannel)
-        if color.isValid():
-            self.label.brush = QBrush(color, Qt.SolidPattern)
-            self.label.update()
-        else:
-            pass
+        self.label.brush = QBrush(color, Qt.SolidPattern) if color.isValid() else False
 
     def rectbrush_color_picker(self):
         dialog = QColorDialog()
         color = dialog.getColor(options=QColorDialog.ShowAlphaChannel)
-        if color.isValid():
-            self.label.brush = QBrush(color, Qt.SolidPattern)
-            self.label.update()
-        else:
-            pass
+        self.label.rectbrushcolor = QBrush(color, Qt.SolidPattern) if color.isValid() else False
 
     def circle_color_picker(self):
         dialog = QColorDialog()
         color = dialog.getColor(options=QColorDialog.ShowAlphaChannel)
-        if color.isValid():
-            self.label.brush = QBrush(color, Qt.SolidPattern)
-            self.label.update()
-        else:
-            pass
+        self.label.circlebrushcolor = QBrush(color, Qt.SolidPattern) if color.isValid() else False
 
     def showlineedit(self):
         if not self.toggle2 and not self.toggle3:
-            print(self.win.listWidget_2.itemPressed.signal)
             self.win.lineEdit.resize(self.win.pushButton_4.size().width(), self.win.pushButton_4.size().height())
             animation = QPropertyAnimation(self.win.lineEdit, b"pos", self.win.dockWidget)
             animation.setStartValue(self.win.pushButton_4.pos())
