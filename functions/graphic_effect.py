@@ -3,6 +3,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtCore import QPropertyAnimation, QSize, QPoint, QEasingCurve, QParallelAnimationGroup
 
 
+# apply shadow effect to the frameless window
 def shadow(src):
     shadow = QGraphicsDropShadowEffect()
     shadow.setBlurRadius(40)
@@ -10,7 +11,7 @@ def shadow(src):
     shadow.setOffset(0)
     src.setGraphicsEffect(shadow)
 
-
+# apply animation to the progressbar
 def displayProgressbar(self):
     anmiation = QPropertyAnimation(self.win.progressBar, b"pos", self.win.frame)
     anmiation2 = QPropertyAnimation(self.win.progressBar, b"size", self.win.frame)
