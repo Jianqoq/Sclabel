@@ -1,0 +1,224 @@
+from setting_Window import *
+from UI.main_window import *
+from annotation_win import *
+from functions.graphic_effect import *
+from functions.file_manipulation import *
+from cap_pic_show import *
+import sys
+
+
+class Win(QMainWindow):
+    signal = pyqtSignal(int, int, name='valChanged2')
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.win = Ui_MainWindow()
+        self.win.setupUi(self)
+        self.setWindowFlag(Qt.FramelessWindowHint)
+        #self.setWindowFlags(Qt.WindowStaysOnTopHint|Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        shadow(self)
+        self.dpi = self.devicePixelRatioF()
+        self.path = rf'C:\Users\{os.getlogin()}\Documents\Sclabel'
+        self.offset = None
+        self.check = None
+        self.height = None
+        self.width = None
+        self.name = None
+        self.save = None
+        self.readpath = None
+        self.pos2 = None
+        self.temp = None
+        self.x = None
+        self.y = None
+        self.filename = None
+        self.settingw = None
+        self.Aug_load = None
+        self.Aug_name = None
+        self.posx = 0
+        self.posy = 0
+        self.lastpos = None
+        self.slidervalue = 0
+        self.image_format = None
+        self.imglabel = None
+        self.label = None
+        self.labelcheckbox = None
+        self.labelling = False
+        self.configname = 'config.ini'
+        readdir(self, self.path, self.dpi)
+        self.onlyint = QIntValidator()
+        self.win.lineEdit.setValidator(self.onlyint)
+        self.win.lineEdit_2.setValidator(self.onlyint)
+        self.win.frame_3.installEventFilter(self)
+        self.win.settings.clicked.connect(self.settingwin)
+        self.win.create.clicked.connect(self.cap_opennewwin)
+        self.win.pushButton_3.clicked.connect(self.annotation)
+        self.win.checkBox.toggled.connect(lambda: self.update4(self.path, 'check', self.win.checkBox.isChecked()))
+        self.win.checkBox_2.toggled.connect(lambda: self.update3(self.path, 'labeling function',
+                                                                 self.win.checkBox_2.isChecked()))
+        self.win.lineEdit.textEdited.connect(lambda: w_update(self, 'Saving setting', 'width', self.win.lineEdit))
+        self.win.lineEdit_2.textEdited.connect(lambda: h_update(self, 'Saving setting', 'height', self.win.lineEdit_2))
+        self.init_var()
+        self.move(self.posx, self.posy)
+        self.compression = int(round(100/self.slidervalue, 0))
+        self.imgdict = {
+            '0': (int(cv2.IMWRITE_JPEG_QUALITY), '.jpg', self.slidervalue),
+            '1': (int(cv2.IMWRITE_PNG_COMPRESSION), '.png', self.compression),
+            '2': (int(cv2.IMWRITE_TIFF_COMPRESSION), '.tiff', self.compression),
+            '3': (None, '.bmp', None),
+            '4': (None, '.jp2', None),
+        }
+        self.show()
+
+    def annotation(self):
+        self.window2 = QLineEditMask(geo.width(), geo.height(), self)
+        self.window2.show()
+        point = self.win.frame.mapToGlobal(self.win.frame.pos())
+        x = point.x() + self.win.frame.width()//2 - self.window2.geometry().width()//2
+        y = point.y() + self.win.frame.height()//2 - self.window2.geometry().height()//2 - 60
+        self.window2.move(x, y)
+        self.win.pushButton_3.setEnabled(False)
+        self.labelling = True
+
+    def directannotate(self, path):
+        self.window2 = QLineEditMask(geo.width(), geo.height(), self)
+        saveloc = get_label_filename(path)
+        self.window2.storelabeling['Image path'] = path
+        self.window2.saveloc = saveloc
+        self.window2.show()
+        self.window2.readimg(path)
+
+    def init_var(self):
+        config = configparser.ConfigParser()
+        config.read(rf'{self.path}\{self.configname}')
+        self.readpath = config.get('Saving setting', 'Location')
+        self.name = config.get('Saving setting', 'Image name')
+        self.save = config.get('Saving setting', 'Save Location')
+        self.Aug_name = config.get('Saving setting', 'Augment Image name')
+        self.Aug_load = config.get('Saving setting', 'Augment Data load')
+        self.width = config.get('Saving setting', 'width')
+        self.height = config.get('Saving setting', 'height')
+        self.posx = int(config.get('Saving setting', 'last_posx'))
+        self.posy = int(config.get('Saving setting', 'last_posy'))
+        self.check = config.get('Saving setting', 'check')
+        self.slidervalue = int(config.get('Saving setting', 'Quality'))
+        self.image_format = config.get('Saving setting', 'Image Format')
+        self.imglabel = config.get('Saving setting', 'Label Location')
+        self.labelcheckbox = config.get('Saving setting', 'Labeling Function')
+        self.win.lineEdit.setText(self.width)
+        self.win.lineEdit_2.setText(self.height)
+        self.checkTrue(self.check, self.win.checkBox)
+        self.checkTrue(self.labelcheckbox, self.win.checkBox_2)
+
+    def checkTrue(self, key, checkbox):
+        if key == 'True':
+            checkbox.setChecked(True)
+        else:
+            checkbox.setChecked(False)
+
+    def update3(self, path, key, statement: bool):
+        checkbox_update(path, key, statement)
+        self.labelcheckbox = statement
+
+    def update4(self, path, key, statement: bool):
+        checkbox_update(path, key, statement)
+        self.check = statement
+
+    @QtCore.pyqtSlot(int, int)
+    def updatelabelinfo(self, width, height):
+        if self.label is not None:
+            self.label.x1 = width
+            self.label.y1 = height
+        else:
+            self.width = width
+            self.height = height
+
+    def settingwin(self):
+        pos = self.pos() + self.win.frame_2.pos()
+        self.settingw = SettingWindow(pos, self.win.frame_2.size(), self.dpi, self)
+        self.settingw.imgdict = self.imgdict
+        self.settingw.show()
+
+    def cap_opennewwin(self):
+        self.temp = tempfile.TemporaryDirectory()
+        name = self.temp.name
+        MoniterDev = win32api.EnumDisplayMonitors(None, None)
+        w = MoniterDev[0][2][2]
+        h = MoniterDev[0][2][3]
+        temploc = rf'{name}/image.jpg'
+        file = self.readpath + '/' + self.name + '.jpg'
+        if self.win.checkBox.isChecked():
+            self.hide()
+        window_capture(temploc, 0, 0, w, h)
+        self.open_window(file, temploc, self.temp, self.slidervalue)
+
+    def keyPressEvent(self, event):
+        if event.key() == 39:
+            self.cap_opennewwin()
+
+    def eventFilter(self, source, event):
+        if source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseMove and QtCore.Qt.LeftButton and self.offset:
+            self.pos2 = self.pos() + event.globalPos() - self.offset
+            self.move(self.pos2)
+            self.offset = event.globalPos()
+            event.accept()
+        elif source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseButtonPress and QtCore.Qt.LeftButton:
+            self.offset = event.globalPos()
+        elif source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseButtonRelease and QtCore.Qt.LeftButton:
+            if self.pos2 is not None:
+                lastpos(self.path, self.pos2)
+
+        return super().eventFilter(source, event)
+
+    def open_window(self, file, temploc, temp, quality):
+        factor = self.dpi
+        image = QPixmap(temploc)
+        image.setDevicePixelRatio(factor)
+        x = image.width()
+        y = image.height()
+        self.window = OpenWindow()
+        self.window.filename = temploc
+        self.window.new_win.setupUi(self.window)
+        newx = int(x // factor)
+        newy = int(y // factor)
+        if self.win.checkBox.isChecked():
+            self.label = MyLabel2(file, temploc, temp, self.readpath, self.name,
+                                  self.width, self.height, self.window, self.dpi,
+                                  int(x - int(self.width) // factor),
+                                  int(y - int(self.height) // factor),
+                                  newx, newy, self, quality, self.path, self.window)
+        else:
+            self.label = MyLabel2(file, temploc, temp, self.save, self.name,
+                                  self.width, self.height, self.window, self.dpi,
+                                  int(x-self.width//factor),
+                                  int(y-self.height//factor),
+                                  newx, newy, None, quality, self.path, self.window)
+        self.label.setPixmap(image)
+        self.updateidct()
+        self.label.imagedict = self.imgdict
+        self.label.setFocusPolicy(Qt.StrongFocus)
+        self.label.resize(newx, newy)
+        self.label.setMouseTracking(True)
+        self.window.setGeometry(0, 0, x, y)
+        self.window.show()
+
+    def updateidct(self):
+        self.compression = int(round(100/self.slidervalue, 0))
+        self.imgdict = {
+            '0': (int(cv2.IMWRITE_JPEG_QUALITY), '.jpg', self.slidervalue),
+            '1': (int(cv2.IMWRITE_PNG_COMPRESSION), '.png', self.compression),
+            '2': (int(cv2.IMWRITE_TIFF_COMPRESSION), '.tiff', self.compression),
+            '3': (None, '.bmp', None),
+            '4': (None, '.jp2', None),
+        }
+
+
+os.environ['QT_SCALE_FACTOR'] = str(ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
+os.environ['QT_FONT_DPI'] = str(ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
+if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    geo = app.desktop().screenGeometry(0)
+    win = Win()
+    app.exec()
