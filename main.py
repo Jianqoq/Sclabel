@@ -111,10 +111,7 @@ class Win(QMainWindow):
         self.checkTrue(self.labelcheckbox, self.win.checkBox_2)
 
     def checkTrue(self, key, checkbox):
-        if key == 'True':
-            checkbox.setChecked(True)
-        else:
-            checkbox.setChecked(False)
+        checkbox.setChecked(True) if key == 'True' else checkbox.setChecked(False)
 
     def update3(self, path, key, statement: bool):
         checkbox_update(path, key, statement)
@@ -153,8 +150,7 @@ class Win(QMainWindow):
         self.open_window(file, temploc, self.temp, self.slidervalue)
 
     def keyPressEvent(self, event):
-        if event.key() == 39:
-            self.cap_opennewwin()
+        self.cap_opennewwin() if event.key() == 39 else False
 
     def eventFilter(self, source, event):
         if source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseMove and QtCore.Qt.LeftButton and self.offset:
@@ -165,8 +161,7 @@ class Win(QMainWindow):
         elif source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseButtonPress and QtCore.Qt.LeftButton:
             self.offset = event.globalPos()
         elif source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseButtonRelease and QtCore.Qt.LeftButton:
-            if self.pos2 is not None:
-                lastpos(self.path, self.pos2)
+            lastpos(self.path, self.pos2) if self.pos2 is not None else False
 
         return super().eventFilter(source, event)
 
@@ -181,14 +176,8 @@ class Win(QMainWindow):
         self.window.new_win.setupUi(self.window)
         newx = int(x // factor)
         newy = int(y // factor)
-        if self.win.checkBox.isChecked():
-            win_instance = self
-        else:
-            win_instance = None
-        self.label = MyLabel2(file, temploc, temp, self.readpath, self.name, self.width,
-                              self.height, self.window, self.dpi, int(x - int(self.width) // factor),
-                              int(y - int(self.height) // factor), newx, newy, win_instance, quality,
-                              self.path, self.window)
+        win_instance = self if self.win.checkBox.isChecked() else None
+        self.label = MyLabel2(file, temploc, temp, x, y, newx, newy, win_instance, quality, self.window)
         self.label.setPixmap(image)
         self.updateidct()
         self.label.imagedict = self.imgdict
