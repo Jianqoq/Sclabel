@@ -73,7 +73,10 @@ class SettingWindow(QWidget):
             raise ValueError
 
     def window_pos(self):
-        self._winx = 0 if self._winx < 0 else self._winy = 0
+        if self._winx < 0:
+            self._winx = 0
+        else:
+            self._winy = 0
 
     def openfolder(self, num):
         if num == 8:
