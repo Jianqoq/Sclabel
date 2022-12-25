@@ -182,17 +182,13 @@ class Win(QMainWindow):
         newx = int(x // factor)
         newy = int(y // factor)
         if self.win.checkBox.isChecked():
-            self.label = MyLabel2(file, temploc, temp, self.readpath, self.name,
-                                  self.width, self.height, self.window, self.dpi,
-                                  int(x - int(self.width) // factor),
-                                  int(y - int(self.height) // factor),
-                                  newx, newy, self, quality, self.path, self.window)
+            win_instance = self
         else:
-            self.label = MyLabel2(file, temploc, temp, self.save, self.name,
-                                  self.width, self.height, self.window, self.dpi,
-                                  int(x-self.width//factor),
-                                  int(y-self.height//factor),
-                                  newx, newy, None, quality, self.path, self.window)
+            win_instance = None
+        self.label = MyLabel2(file, temploc, temp, self.readpath, self.name, self.width,
+                              self.height, self.window, self.dpi, int(x - int(self.width) // factor),
+                              int(y - int(self.height) // factor), newx, newy, win_instance, quality,
+                              self.path, self.window)
         self.label.setPixmap(image)
         self.updateidct()
         self.label.imagedict = self.imgdict
