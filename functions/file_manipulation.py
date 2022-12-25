@@ -6,7 +6,7 @@ import win32con
 import win32api
 
 
-#get the label name for annotation file saving
+# get the label name for annotation file saving
 def get_label_filename(path):
     basename = os.path.splitext(os.path.basename(path))[0]
     directory = os.path.dirname(os.path.realpath(path))
