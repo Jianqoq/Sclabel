@@ -31,6 +31,7 @@ class SettingWindow(QWidget):
         self.win.pushButton_8.clicked.connect(lambda: self.openfolder(10))
         self.win.pushButton_9.clicked.connect(lambda: self.openfolder(9))
         self.win.pushButton_10.clicked.connect(lambda: self.openfolder(8))
+        self.win.pushButton_12.clicked.connect(lambda: self.openfolder(12))
         self.win.lineEdit.textChanged.connect(self.enableapply)
         self.win.lineEdit_2.textEdited.connect(self.enableapply)
         self.win.lineEdit_3.textEdited.connect(self.enableapply)
@@ -72,10 +73,7 @@ class SettingWindow(QWidget):
             raise ValueError
 
     def window_pos(self):
-        if self._winx < 0:
-            self._winx = 0
-        if self._winy < 0:
-            self._winy = 0
+        self._winx = 0 if self._winx < 0 else self._winy = 0
 
     def openfolder(self, num):
         if num == 8:
@@ -84,6 +82,8 @@ class SettingWindow(QWidget):
             open_dir(self.win.lineEdit_6.text())
         elif num == 10:
             open_dir(self.win.lineEdit_4.text())
+        elif num == 12:
+            open_dir(self.win.lineEdit_7.text())
 
     def threading1(self):
         Thread(target=self.dataaugment).start()
@@ -93,8 +93,8 @@ class SettingWindow(QWidget):
 
     def dataaugment(self):
         dataaugment(self.win.lineEdit_6.text(), self.win.lineEdit_4.text(), self.win.lineEdit_3.text(),
-                      self.win.lineEdit_5, self.win.progressBar, self.mainwin.imgdict[self.mainwin.image_format],
-                      self.mainwin.slidervalue)
+                    self.win.lineEdit_5, self.win.progressBar, self.mainwin.imgdict[self.mainwin.image_format],
+                    self.mainwin.slidervalue)
 
     def ok_button(self):
         self.confirm()
@@ -105,8 +105,7 @@ class SettingWindow(QWidget):
 
     def getdir(self, lineedit):
         folder = QFileDialog.getExistingDirectory()
-        if folder:
-            lineedit.setText(folder)
+        lineedit.setText(folder) if folder else False
 
     # update config file and update MainWindow variables without quitting the whole software
     def confirm(self):
