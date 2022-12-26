@@ -76,7 +76,7 @@ def readdir(self, path, dpi):
             'last_posx': int((self.screen().size().width() - software_width // 2) // dpi),
             'last_posy': int((self.screen().size().height() - software_height // 2) // dpi),
             'check': str(True),
-            'Quality': 1,
+            'Quality': 100,
             'Image Format': 0,
             'Label Location': 'C:/Users/Public/Pictures/Data_aug_ImageSet_Label',
             'Labeling Function': str(True),
