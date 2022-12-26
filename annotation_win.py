@@ -296,12 +296,13 @@ class QLineEditMask(QMainWindow):
                 dockposy2 = (self.height - self.win.dockWidget_3.height())//2
                 self.win.dockWidget.setFloating(True)
                 self.win.dockWidget_3.setFloating(True)
+                x = (self.width + realwidth)//2
                 if windowposx - dockwidth < 0:
                     self.win.dockWidget.move(0, dockposy)
                 else:
                     self.win.dockWidget.move(windowposx - dockwidth, dockposy)
-                if windowposx + realwidth >= self.width:
-                    self.win.dockWidget_3.move(windowposx + realwidth - self.win.dockWidget_3.width(), dockposy2)
+                if x + realwidth >= self.width:
+                    self.win.dockWidget_3.move(self.width - self.win.dockWidget_3.width(), dockposy2)
                 else:
                     self.win.dockWidget_3.move(windowposx + realwidth, dockposy2)
                 if not self.displayed:
@@ -369,6 +370,9 @@ class QLineEditMask(QMainWindow):
             self.mainwindow.win.pushButton_3.setEnabled(True)
             self.win.dockWidget.close()
             self.win.dockWidget_3.close()
+        elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
+            self.mainwindow.win.pushButton_3.setEnabled(True)
+            self.close()
         return super().eventFilter(src, event)
 
     def getnext(self):
