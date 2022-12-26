@@ -114,7 +114,6 @@ class Win(QMainWindow):
         open_dir(self.Aug_load, False)
         open_dir(self.imglabel, False)
 
-
     def checkTrue(self, key, checkbox):
         checkbox.setChecked(True) if key == 'True' else checkbox.setChecked(False)
 
