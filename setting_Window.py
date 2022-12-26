@@ -42,8 +42,8 @@ class SettingWindow(QWidget):
         self.win.horizontalSlider.valueChanged.connect(self.updateslider)
         self.win.comboBox_2.currentIndexChanged.connect(self.enableapply)
         self.imgdict = None
-        self._winx = int(-self.size().width()//dpi + size.width()//dpi + main_win_pos.x())
-        self._winy = int(-self.size().height()//dpi + size.height()//dpi + main_win_pos.y())
+        self._winx = int(main_win_pos.x() + size.width()//2 - self.size().width()//2)
+        self._winy = int(main_win_pos.y() + size.height()//2 - self.size().height()//2)
         self.name = 'image'
         self.window_pos()
         self.move(self._winx, self._winy)
@@ -73,9 +73,12 @@ class SettingWindow(QWidget):
             raise ValueError
 
     def window_pos(self):
+        if self._winx < 0 and self._winy < 0:
+            self._winx = 0
+            self._winy = 0
         if self._winx < 0:
             self._winx = 0
-        else:
+        elif self._winy < 0:
             self._winy = 0
 
     def openfolder(self, num):
