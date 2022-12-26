@@ -56,7 +56,7 @@ def checkbox_update(path, key, statement):
         file.close()
 
 
-def readdir(self, path):
+def readdir(self, path, username):
     open_dir(path, False)
     software_width, software_height = self.frameSize().width(), self.frameSize().height()
     config = configparser.ConfigParser()
@@ -66,19 +66,19 @@ def readdir(self, path):
                     'width', 'height', 'last_posx', 'last_posy',
                     'check', 'Quality', 'Image Format', 'Label Location',
                     'Labeling Function', 'Last annotation file']
-    dict = {'Location': 'C:/Users/Public/Pictures/ImageSet',
+    dict = {'Location': f'C:/Users/{username}/Pictures/ImageSet',
             'Image name': 'Image',
-            'Save Location': 'C:/Users/Public/Pictures/Data_aug_ImageSet',
+            'Save Location': f'C:/Users/{username}/Pictures/Data_aug_ImageSet',
             'Augment Image name': 'AugImg',
-            'Augment Data load': r'C:/Users/123/Pictures/Aug_Data',
+            'Augment Data load': rf'C:/Users/{username}/Pictures/Aug_Data',
             'width': 340,
             'height': 340,
             'last_posx': int((self.screen().size().width() - software_width) // 2),
             'last_posy': int((self.screen().size().height() - software_height) // 2),
             'check': str(True),
             'Quality': 100,
-            'Image Format': 0,
-            'Label Location': 'C:/Users/Public/Pictures/Data_aug_ImageSet_Label',
+            'Image Format': 1,
+            'Label Location': f'C:/Users/{username}/Pictures/Data_aug_ImageSet_Label',
             'Labeling Function': str(True),
             'Last annotation file': None
             }
