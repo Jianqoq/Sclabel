@@ -45,7 +45,7 @@ class Win(QMainWindow):
         self.labelcheckbox = None
         self.labelling = False
         self.configname = 'config.ini'
-        readdir(self, self.path, self.dpi)
+        readdir(self, self.path)
         self.onlyint = QIntValidator()
         self.win.lineEdit.setValidator(self.onlyint)
         self.win.lineEdit_2.setValidator(self.onlyint)
