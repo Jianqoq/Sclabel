@@ -132,7 +132,7 @@ class Win(QMainWindow):
 
     def settingwin(self):
         pos = self.pos() + self.win.frame_2.pos()
-        self.settingw = SettingWindow(pos, self.win.frame_2.size(), self.dpi, self)
+        self.settingw = SettingWindow(pos, self.win.frame_2.size(), self)
         self.settingw.imgdict = self.imgdict
         self.settingw.show()
 
