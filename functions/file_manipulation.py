@@ -6,14 +6,13 @@ import win32con
 import win32api
 
 
-# get the label name for annotation file saving
 def get_label_filename(path):
     basename = os.path.splitext(os.path.basename(path))[0]
     directory = os.path.dirname(os.path.realpath(path))
     save_location = f'{directory}\{basename}.json'
     return save_location
 
-# write new cropping box height to the config file and update instance height property
+
 def h_update(win, section, item, widget):
     height = widget.text()
     win.height = height
@@ -26,7 +25,6 @@ def h_update(win, section, item, widget):
     win.signal.emit(win.width, win.height)
 
 
-# write new cropping box width to the config file and update instance width property
 def w_update(win, section, item, widget):
     width = widget.text()
     win.width = width
@@ -38,7 +36,7 @@ def w_update(win, section, item, widget):
         file.close()
     win.signal.emit(win.width, win.height)
 
-# write new pos to the config file
+
 def lastpos(path, pos):
     config = configparser.ConfigParser()
     config.read(rf'{path}\config.ini')
@@ -48,7 +46,7 @@ def lastpos(path, pos):
         config.write(fp)
         fp.close()
 
-# write new checkbox bool value to the config file
+
 def checkbox_update(path, key, statement):
     config = configparser.ConfigParser()
     config.read(f'{path}\config.ini')
@@ -57,8 +55,9 @@ def checkbox_update(path, key, statement):
         config.write(file)
         file.close()
 
-# check if the specific path has the config file create one if it doesn't or create the item the file doesn't have according to the Save_setting list
+
 def readdir(self, path, dpi):
+    open_dir(path, False)
     software_width, software_height = self.frameSize().width(), self.frameSize().height()
     config = configparser.ConfigParser()
     config.read(f'{path}\config.ini')
@@ -86,7 +85,7 @@ def readdir(self, path, dpi):
     index = 0
     for item in Save_setting:
         if not config.has_option('Saving setting', item):
-            with open(f'{path}\config.ini', mode='w') as file:
+            with open(f'{path}\config.ini', mode='w+') as file:
                 key = Save_setting[index]
                 if config.has_section('Saving setting'):
                     config.set('Saving setting', key, str(dict[key]))
@@ -97,7 +96,7 @@ def readdir(self, path, dpi):
                 file.close()
         index += 1
 
-# screenshot Source code from http://www.jiuaitu.com/python/398.html
+
 def window_capture(filename, x, y, sizex, sizey):
     hwnd = 0
     hwndDC = win32gui.GetWindowDC(hwnd)
@@ -120,7 +119,7 @@ def updatefilename(path, name, section, item, config_name):
     with open(rf'{path}\{config_name}', mode='w') as file:
         config.write(file)
 
-# save file path
+
 def autosave(win, filename, section, item):
     config = configparser.ConfigParser()
     config.read(f'{win.path}\{win.configname}')
@@ -129,18 +128,18 @@ def autosave(win, filename, section, item):
         config.write(file)
         file.close()
 
-# read file path which was saved by autosave function
+
 def read_savedfile(win):
     config = configparser.ConfigParser()
     config.read(f'{win.path}\{win.configname}')
     path = config.get('Saving setting', 'last annotation file')
     return path
 
-# check if directory exists create one and open the window if doesn't
-def open_dir(path):
+
+def open_dir(path, openfile: bool):
     if not os.path.exists(path):
         os.makedirs(path)
-    os.startfile(path)
+    os.startfile(path) if openfile else True
 
 
 
