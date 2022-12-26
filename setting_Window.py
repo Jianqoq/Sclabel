@@ -6,7 +6,7 @@ from functions.Image_process import *
 
 
 class SettingWindow(QWidget):
-    def __init__(self, main_win_pos, size, dpi, main_win):
+    def __init__(self, main_win_pos, size, main_win):
         super(SettingWindow, self).__init__()
         self.win = UI.setting.Ui_Form()
         self.setObjectName('Settings')
