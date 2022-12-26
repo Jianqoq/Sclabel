@@ -56,7 +56,7 @@ def checkbox_update(path, key, statement):
         file.close()
 
 
-def readdir(self, path, dpi):
+def readdir(self, path):
     open_dir(path, False)
     software_width, software_height = self.frameSize().width(), self.frameSize().height()
     config = configparser.ConfigParser()
