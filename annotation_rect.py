@@ -18,10 +18,12 @@ class Mylabel(QWidget):
         self.rightedge = False
         self.bottomedge = False
         self.pressed = False
+        self.start = False
         self.edge = False
         self.tlcorner = False
         self.brcorner = False
         self.currentboxx = None
+        self.selected = False
         self.prev = None
         self.size2 = self.rect()
         self.currentbox_index = None
@@ -46,14 +48,19 @@ class Mylabel(QWidget):
         self.storecircleradius = []
         self.newbegin = []
         self.newend = []
+        self.selectedbox_begin = []
+        self.selectedbox_end = []
         self.setMouseTracking(True)
 
-    def update_item(self, beginpoint, endpoint):
-        self.rectlist[self.currentboxx] = QRectF(beginpoint, endpoint)
-        self.storebegin[self.currentboxx] = beginpoint
-        self.storeend[self.currentboxx] = endpoint
+    def update_item(self, beginpoint, endpoint, index):
+        self.rectlist[index] = QRectF(beginpoint, endpoint)
+        self.storebegin[index] = beginpoint
+        self.storeend[index] = endpoint
         self.newbegin[self.currentboxx] = beginpoint * self.parent.dpi
         self.newend[self.currentboxx] = endpoint * self.parent.dpi
+        if self.selected:
+            self.selectedbox_begin[0] = beginpoint
+            self.selectedbox_end[0] = endpoint
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -71,60 +78,120 @@ class Mylabel(QWidget):
                          self.storebegin, self.storecircleradius, self.storeend)
 
     def mousePressEvent(self, event):
-        if event.buttons() == Qt.LeftButton and not self.pressed:
+        if not self.selected and event.buttons() == Qt.LeftButton and not self.pressed:
             self.begin = self.end = event.pos()
             self.pressed = True
             self.update()
+        elif self.selected and self.edge and event.buttons() == Qt.LeftButton and not self.pressed:
+            self.begin = self.end = event.pos()
+            self.pressed = True
+            self.start = False
+            self.update()
+        elif self.selected and not self.edge and event.buttons() == Qt.LeftButton and not self.pressed:
+            self.start = True
 
     def mouseMoveEvent(self, event):
 
-        if self.edge:
+        if self.edge and not self.selected:
             self.storerectbrushcolor[self.currentboxx] = QBrush(QColor(200, 200, 200, 40))
             self.storecolor[self.currentboxx] = QColor(248, 255, 106, 255)
             self.update()
-        if self.pressed and not self.edge:
+
+        if self.pressed and not self.edge and not self.selected:
             self.end = event.pos()
             self.update()
-        if self.edge and self.pressed and self.currentboxx is not None:
+
+        elif self.pressed and self.selected:
+            self.end = event.pos()
+            self.update()
+
+        if not self.selected and self.edge and self.pressed and self.currentboxx is not None:
             beginpoint = self.storebegin[self.currentboxx]
             endpoint = self.storeend[self.currentboxx]
             if self.leftedge:
                 beginpoint = QPointF(event.pos().x(), beginpoint.y())
-                self.update_item(beginpoint, endpoint)
+                self.update_item(beginpoint, endpoint, self.currentboxx)
                 self.update()
                 return
             elif self.topedge:
                 beginpoint = QPointF(beginpoint.x(), event.pos().y())
-                self.update_item(beginpoint, endpoint)
+                self.update_item(beginpoint, endpoint, self.currentboxx)
                 self.update()
                 return
             elif self.rightedge:
                 endpoint = QPointF(event.pos().x(), endpoint.y())
-                self.update_item(beginpoint, endpoint)
+                self.update_item(beginpoint, endpoint, self.currentboxx)
                 self.update()
                 return
             elif self.bottomedge:
                 endpoint = QPointF(endpoint.x(), event.pos().y())
-                self.update_item(beginpoint, endpoint)
+                self.update_item(beginpoint, endpoint, self.currentboxx)
                 self.update()
                 return
             elif self.tlcorner:
                 beginpoint = event.pos()
-                self.update_item(beginpoint, endpoint)
+                self.update_item(beginpoint, endpoint, self.currentboxx)
                 self.update()
                 return
             elif self.brcorner:
                 endpoint = event.pos()
-                self.update_item(beginpoint, endpoint)
+                self.update_item(beginpoint, endpoint, self.currentboxx)
                 self.update()
                 return
 
-        if self.prev is not None and self.prev != self.currentboxx:
+        elif self.selected and self.edge and self.pressed and self.currentboxx is not None:
+            beginpoint = self.storebegin[self.parent.index]
+            endpoint = self.storeend[self.parent.index]
+            if self.leftedge:
+                beginpoint = QPointF(event.pos().x(), beginpoint.y())
+                self.update_item(beginpoint, endpoint, self.parent.index)
+                self.update()
+                return
+            elif self.topedge:
+                beginpoint = QPointF(beginpoint.x(), event.pos().y())
+                self.update_item(beginpoint, endpoint, self.parent.index)
+                self.update()
+                return
+            elif self.rightedge:
+                endpoint = QPointF(event.pos().x(), endpoint.y())
+                self.update_item(beginpoint, endpoint, self.parent.index)
+                self.update()
+                return
+            elif self.bottomedge:
+                endpoint = QPointF(endpoint.x(), event.pos().y())
+                self.update_item(beginpoint, endpoint, self.parent.index)
+                self.update()
+                return
+            elif self.tlcorner:
+                beginpoint = event.pos()
+                self.update_item(beginpoint, endpoint, self.parent.index)
+                self.update()
+                return
+            elif self.brcorner:
+                endpoint = event.pos()
+                self.update_item(beginpoint, endpoint, self.parent.index)
+                self.update()
+                return
+
+        if self.prev is not None and self.prev != self.currentboxx and not self.selected:
             self.storerectbrushcolor[self.prev] = self.rectbrushcolor
             self.storecolor[self.prev] = self.brush
             self.update()
 
-        if not self.pressed and \
+        if self.selected and not self.pressed and not self.start and\
+                (Find_edge.checklefttop(self, event.pos().x(), event.pos().y(), self.radius, self.selectedbox_begin, self.selectedbox_end)
+            or Find_edge.checkrightbottom(self, event.pos().x(), event.pos().y(), self.radius, self.selectedbox_begin, self.selectedbox_end)):
+            if self.topedge or self.bottomedge:
+                self.edge = True
+                self.setCursor(Qt.SizeVerCursor)
+            elif self.leftedge or self.rightedge:
+                self.edge = True
+                self.setCursor(Qt.SizeHorCursor)
+            elif self.tlcorner or self.brcorner:
+                self.edge = True
+                self.setCursor(Qt.ClosedHandCursor)
+
+        elif not self.selected and not self.pressed and \
            (Find_edge.checklefttop(self, event.pos().x(), event.pos().y(), self.radius, self.storebegin, self.storeend)
             or Find_edge.checkrightbottom(self, event.pos().x(), event.pos().y(), self.radius, self.storebegin, self.storeend)):
             if self.topedge or self.bottomedge:
@@ -138,7 +205,7 @@ class Mylabel(QWidget):
                 self.setCursor(Qt.ClosedHandCursor)
 
         elif not self.pressed:
-            if self.currentboxx is not None:
+            if self.currentboxx is not None and not self.selected:
                 self.storerectbrushcolor[self.currentboxx] = self.rectbrushcolor
                 self.storecolor[self.currentboxx] = self.brush
             self.rightedge = False
@@ -151,7 +218,7 @@ class Mylabel(QWidget):
             self.unsetCursor()
 
     def mouseReleaseEvent(self, event):
-        if not self.edge and event.button() == Qt.LeftButton:
+        if not self.selected and not self.edge and event.button() == Qt.LeftButton:
             Draw.store_data(self.storebegin, self.storeend, self.rectlist, self.begin,
                             self.end, self.storecolor, self.brush, self.storewidth,
                             self.width, self.storecirclewidth, self.circlewidth,
@@ -179,6 +246,7 @@ class Mylabel(QWidget):
                                                                         f'  End: ({endx},{endy})')
             self.pressed = False
             self.update()
+        self.start = False
 
     def clear(self):
         self.rectlist.clear()
@@ -186,4 +254,13 @@ class Mylabel(QWidget):
         self.storeend.clear()
         self.newbegin.clear()
         self.newend.clear()
+        self.storerectbrushcolor.clear()
+        self.storecolor.clear()
+        self.storecirclewidth.clear()
+        self.storecircleradius.clear()
+        self.storecirclebrushcolor.clear()
         self.parent.win.listWidget_2.clear()
+        self.currentboxx = None
+        self.prev = None
+        self.selected = False
+        self.parent.index = None
