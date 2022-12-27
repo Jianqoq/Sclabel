@@ -33,7 +33,7 @@ Out: (2, 2, 3)
 1   1   1
 4   4   4
 ```
-If we want to crop an image with color. we will simply combine the channels to a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the uppper half of the image.
+If we want to crop an image with color. we will simply combine the three big columns to a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the uppper half of the image. In this sofware, a red rectangular will be displayed and its dimension represents slicing area.
 ```
 In: array[0: 1, 0: 2]
 
@@ -41,4 +41,4 @@ Out: array([[[1, 1, 1],
         [4, 4, 4]]])
 ```
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image2.jpg)
-In this sofware, a red rectangular will be displayed and it will show you the array slicing area based on the dimension of the rect.
+![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/b6e9515a10957967ddee00befa6ea40.png)
