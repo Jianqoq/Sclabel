@@ -41,3 +41,4 @@ Out: array([[[1, 1, 1],
         [4, 4, 4]]])
 ```
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image2.jpg)
+In this sofware, a red rectangular will be displayed and it will show you the array slicing area based on the dimension of the rect.
