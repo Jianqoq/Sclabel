@@ -1,14 +1,14 @@
-from PyQt5.QtCore import QPoint, QRect
+from PyQt5.QtCore import QPointF, QRectF
 from PyQt5.QtGui import QBrush
 
 
-def store_data(beginlist: list, endlist: list, rectlist: list, begin: QPoint, end: QPoint, storecolor: list,
+def store_data(beginlist: list, endlist: list, rectlist: list, begin: QPointF, end: QPointF, storecolor: list,
                color: QBrush, storewidth: list, width: int, storecirclewidth: list, circlewidth: int,
                storecirclebrushcolor: list, circlebrushcolor: QBrush, storebrushcolor: list, brushcolor: QBrush,
                storecircleradius: list, radius: int, newbegin, newend):
     beginlist.append(begin)
     endlist.append(end)
-    rectlist.append(QRect(begin, end))
+    rectlist.append(QRectF(begin, end))
     storecolor.append(color)
     storewidth.append(width)
     storecirclewidth.append(circlewidth)
@@ -19,11 +19,11 @@ def store_data(beginlist: list, endlist: list, rectlist: list, begin: QPoint, en
     newbegin.append(begin*1.5)
 
 
-def get_points(point: QPoint, index: int, endlist: list, pos: QPoint):
+def get_points(point: QPointF, index: int, endlist: list, pos: QPointF):
         vertdistance = point.y() - endlist[index].y()
         hordistance = point.x() - endlist[index].x()
         newpoint = point - pos
-        radius = QPoint.manhattanLength(pos - point)
+        radius = QPointF.manhattanLength(pos - point)
         return vertdistance, hordistance, newpoint, radius
 
 
@@ -58,6 +58,6 @@ def drawcurrentrect(pressed, edge, pen, qp, br2, width, rectbrushcolor, begin, e
         pen.setWidth(width)
         qp.setPen(pen)
         qp.setBrush(rectbrushcolor)
-        qp.drawRect(QRect(begin, end))
+        qp.drawRect(QRectF(begin, end))
     else:
         return
