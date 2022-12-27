@@ -40,3 +40,4 @@ In: array[0: 1, 0: 2]
 Out: array([[[1, 1, 1],
         [4, 4, 4]]])
 ```
+![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image2.jpg)
