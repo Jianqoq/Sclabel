@@ -19,6 +19,7 @@ class QLineEditMask(QMainWindow):
         self.win = Ui_Form()
         self.win.setupUi(self)
         self.setMouseTracking(True)
+        #self.setAcceptDrops(True)
         self.setMaximumSize(self.size())
         self.setMinimumSize(self.size())
         self.dpi = self.devicePixelRatioF()
@@ -89,6 +90,7 @@ class QLineEditMask(QMainWindow):
         self.templist = []
         self.originpos = self.win.pushButton_5.pos()
         self.originpos2 = self.win.horizontalSlider.pos()
+        self.win.lineEdit_3.textEdited.connect(self.drop)
         self.win.pushButton_2.clicked.connect(self.showlineedit)
         self.win.pushButton_5.clicked.connect(self.showlineedit_2)
         self.win.pushButton_6.clicked.connect(self.showslider)
@@ -96,8 +98,12 @@ class QLineEditMask(QMainWindow):
         self.win.lineEdit_2.textEdited.connect(self.update2)
         self.win.horizontalSlider.valueChanged.connect(self.displayvalue)
         self.win.listWidget_2.itemPressed.connect(self.print2)
+        self.win.listWidget_2.doubleClicked.connect(self.highlight)
         self.win.pushButton_7.clicked.connect(lambda: self.loadimg(True))
         self.label.signal2.connect(self.print)
+
+    def drop(self):
+        self.win.lineEdit_3.setText(self.path)
 
     def update(self):
         self.label.width = int(self.win.lineEdit.text())
@@ -295,7 +301,6 @@ class QLineEditMask(QMainWindow):
         else:
             img = cv2.imread(path)
             if img is not None:
-                autosave(self.mainwindow, path, 'Saving setting', 'Last annotation file')
                 img = QPixmap(path)
                 changed = True if self.w != img.width() else False
                 self.w = int(img.width() // self.dpi)
@@ -327,13 +332,19 @@ class QLineEditMask(QMainWindow):
                 self.readimg(path)
 
     def eventFilter(self, src, event):
-        if event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.win.dockWidget and self.toggle:
+
+        if event.type() == QEvent.DragEnter:
+            event.accept()
+        elif event.type() == QEvent.Drop:
+            self.path = event.mimeData().urls()[0].toLocalFile()
+        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.win.dockWidget and self.toggle:
             self.closelineedit()
         elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.win.dockWidget and self.toggle2:
             self.closelineedit_2()
         elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.win.dockWidget and self.toggle3:
             self.closeslider()
-        elif event.type() == QEvent.ContextMenu and QtCore.Qt.RightButton and src == self.win.listWidget_2 and self.selected:
+        elif event.type() == QEvent.ContextMenu and QtCore.Qt.RightButton and\
+                src == self.win.listWidget_2 and self.selected:
             self.selected = False
             menu = QMenu()
             font = QtGui.QFont()
@@ -343,14 +354,6 @@ class QLineEditMask(QMainWindow):
             menu.addAction(self.action4)
             menu.setFont(font)
             menu.exec_(event.globalPos())
-        elif src == self.win.lineEdit_3:
-            if event.type() == QEvent.DragEnter:
-                event.accept()
-            elif event.type() == QEvent.Drop:
-                path = event.mimeData().urls()[0].toLocalFile()
-                src.setText(path)
-                self.path = path
-                return True
         elif event.type() == QEvent.KeyPress and event.key() == 16777236 and self.dir:
             file = self.getnext()
             if file != 0:
@@ -379,10 +382,10 @@ class QLineEditMask(QMainWindow):
                 self.templist.clear()
             else:
                 self.savefile()
-                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
                 self.label.clear()
+                autosave(self.mainwindow, None, 'Saving setting', 'Last annotation file')
                 self.label.close()
                 self.close()
         elif event.type() == QEvent.KeyPress and (event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Plus)\
@@ -424,8 +427,35 @@ class QLineEditMask(QMainWindow):
         self.var2 = var2
 
     def print2(self):
-        self.index = self.win.listWidget_2.currentRow()
         self.selected = True
+
+    def highlight(self):
+        if not self.label.selected:
+            index = self.win.listWidget_2.currentRow()
+            self.index = index
+            self.label.storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
+            self.label.storecolor[index] = QColor(248, 255, 106, 255)
+            self.label.selectedbox_begin.append(self.label.storebegin[index])
+            self.label.selectedbox_end.append(self.label.storeend[index])
+            self.label.repaint()
+            self.label.selected = True
+        elif self.label.selected and self.win.listWidget_2.currentRow() != self.index:
+            index = self.win.listWidget_2.currentRow()
+            self.label.storerectbrushcolor[self.index] = self.label.rectbrushcolor
+            self.label.storecolor[self.index] = self.label.brush
+            self.label.storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
+            self.label.storecolor[index] = QColor(248, 255, 106, 255)
+            self.label.selectedbox_begin[0] = self.label.storebegin[index]
+            self.label.selectedbox_end[0] = self.label.storeend[index]
+            self.label.repaint()
+            self.index = index
+        elif self.label.selected and self.win.listWidget_2.currentRow() == self.index:
+            self.label.storerectbrushcolor[self.index] = self.label.rectbrushcolor
+            self.label.storecolor[self.index] = self.label.brush
+            self.label.selectedbox_begin.pop()
+            self.label.selectedbox_end.pop()
+            self.label.repaint()
+            self.label.selected = False
 
     def additem(self):
         storebegin = self.label.newbegin
