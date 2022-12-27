@@ -18,7 +18,6 @@ class QLineEditMask(QMainWindow):
         super(QLineEditMask, self).__init__()
         self.win = Ui_Form()
         self.win.setupUi(self)
-        self.setAcceptDrops(True)
         self.setMouseTracking(True)
         self.setMaximumSize(self.size())
         self.setMinimumSize(self.size())
@@ -27,6 +26,8 @@ class QLineEditMask(QMainWindow):
         self.win.lineEdit_2.hide()
         self.win.dockWidget.hide()
         self.win.dockWidget_3.hide()
+        self.win.dockWidget.setWindowTitle('Drawing Panel')
+        self.win.dockWidget_3.setWindowTitle('History Annotations')
         self.validator = QIntValidator()
         self.win.lineEdit.setValidator(self.validator)
         self.win.lineEdit_2.setValidator(self.validator)
@@ -48,7 +49,10 @@ class QLineEditMask(QMainWindow):
         self.width = width
         self.height = height
         self.label = Mylabel(self)
-        self.dialog = Dialog(self)
+        self.label.installEventFilter(self)
+        self.win.dockWidget.setParent(self.label)
+        self.win.dockWidget_3.setParent(self.label)
+        self.dialog = Dialog(self.label, self)
         shadow(self.dialog)
         self.dialog.setWindowFlag(Qt.FramelessWindowHint)
         self.dialog.setAttribute(Qt.WA_TranslucentBackground)
@@ -70,7 +74,12 @@ class QLineEditMask(QMainWindow):
         self.dir = False
         self.singal = False
         self.toggle5 = False
+        self.w = 0
+        self.h = 0
         self.count = 0
+        self.var1 = None
+        self.var2 = None
+        self.index = None
         self.storelabeling = {
                               'Image path': self.imgname,
                               'Image_width': 0,
@@ -247,11 +256,19 @@ class QLineEditMask(QMainWindow):
                 self.storelabeling['Image path'] = imgname
                 self.basename = os.path.splitext(os.path.basename(imgname))[0]
                 self.saveloc = rf'{self.path}\{self.basename}.json'
+                self.win.dockWidget.setFloating(True)
+                self.win.dockWidget_3.setFloating(True)
                 self.readimg(imgname)
                 self.dir = True
                 self.singal = False
+                self.win.dockWidget.show()
+                self.win.dockWidget_3.show()
+                self.label.show()
+                self.hide()
             except OSError as e:
                 if e.errno == 20:
+                    self.win.dockWidget.setFloating(True)
+                    self.win.dockWidget_3.setFloating(True)
                     self.readimg(self.path)
                     self.basename = os.path.splitext(os.path.basename(self.path))[0]
                     dir = os.path.dirname(os.path.realpath(self.path))
@@ -259,6 +276,10 @@ class QLineEditMask(QMainWindow):
                     self.storelabeling['Image path'] = self.path
                     self.dir = False
                     self.singal = True
+                    self.label.show()
+                    self.win.dockWidget.show()
+                    self.win.dockWidget_3.show()
+                    self.hide()
                 elif e.errno == 2:
                     print('Invalid path')
 
@@ -276,39 +297,31 @@ class QLineEditMask(QMainWindow):
             if img is not None:
                 autosave(self.mainwindow, path, 'Saving setting', 'Last annotation file')
                 img = QPixmap(path)
-                img.setDevicePixelRatio(self.dpi)
-                realwidth = int(img.width()//self.dpi)
-                realheight = int(img.height()//self.dpi)
-                self.setMaximumSize(realwidth, realheight)
-                self.setMinimumSize(realwidth, realheight)
-                self.storelabeling['Image_width'] = img.width()
-                self.storelabeling['Image_height'] = img.height()
-                self.label.setPixmap(img)
-                self.label.resize(realwidth, realheight)
-                self.win.frame.resize(realwidth, realheight)
-                self.setGeometry(0, 0, realwidth, realheight)
+                changed = True if self.w != img.width() else False
+                self.w = int(img.width() // self.dpi)
+                self.h = int(img.height() // self.dpi)
+                realwidth = self.w if self.w <= self.width else self.width
+                realheight = self.h if self.w <= self.height else self.height
                 windowposx = (self.width - realwidth)//2
                 windowposy = (self.height - realheight)//2
-                self.move(windowposx, windowposy)
-                self.label.move(0, 0)
+                self.label.image = img
+                self.storelabeling['Image_width'] = img.width()
+                self.storelabeling['Image_height'] = img.height()
+                self.label.setGeometry(windowposx, windowposy, self.w, self.h)
+                self.label.setWindowTitle(self.basename)
                 dockwidth = self.win.dockWidget.width()
                 dockposy = (self.height - self.win.dockWidget.height())//2
                 dockposy2 = (self.height - self.win.dockWidget_3.height())//2
-                self.win.dockWidget.setFloating(True)
-                self.win.dockWidget_3.setFloating(True)
                 x = (self.width + realwidth)//2
-                if windowposx - dockwidth < 0:
+                if changed and windowposx - dockwidth < 0:
                     self.win.dockWidget.move(0, dockposy)
-                else:
+                elif changed:
                     self.win.dockWidget.move(windowposx - dockwidth, dockposy)
-                if x + realwidth >= self.width:
+                if changed and x + realwidth >= self.width:
                     self.win.dockWidget_3.move(self.width - self.win.dockWidget_3.width(), dockposy2)
-                else:
+                elif changed:
                     self.win.dockWidget_3.move(windowposx + realwidth, dockposy2)
-                if not self.displayed:
-                    self.win.dockWidget.show()
-                    self.win.dockWidget_3.show()
-                self.displayed = True
+                self.label.repaint()
             else:
                 path = self.getnext()
                 self.readimg(path)
@@ -331,30 +344,46 @@ class QLineEditMask(QMainWindow):
             menu.setFont(font)
             menu.exec_(event.globalPos())
         elif src == self.win.lineEdit_3:
-            if event.type() == QEvent.DragEnter and QtCore.Qt.LeftButton:
+            if event.type() == QEvent.DragEnter:
                 event.accept()
             elif event.type() == QEvent.Drop:
                 path = event.mimeData().urls()[0].toLocalFile()
                 src.setText(path)
                 self.path = path
                 return True
-        elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Plus and self.dir:
+        elif event.type() == QEvent.KeyPress and event.key() == 16777236 and self.dir:
             file = self.getnext()
             if file != 0:
-                self.readimg(file)
-                self.savefile()
-                autosave(self.mainwindow, file, 'Saving setting', 'Last annotation file')
+                self.label.clear()
                 self.updatesaveloc(file)
+                self.readimg(file)
+                autosave(self.mainwindow, file, 'Saving setting', 'Last annotation file')
+                self.storelabeling['Label'].clear()
+                self.templist.clear()
+            else:
+                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
                 self.label.clear()
-                self.label.setFocus()
+                self.label.close()
+                self.close()
+        elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Plus and self.dir:
+            file = self.getnext()
+            if file != 0:
+                self.label.clear()
+                self.savefile()
+                self.updatesaveloc(file)
+                self.readimg(file)
+                autosave(self.mainwindow, file, 'Saving setting', 'Last annotation file')
+                self.storelabeling['Label'].clear()
+                self.templist.clear()
             else:
                 self.savefile()
                 autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
                 self.label.clear()
+                self.label.close()
                 self.close()
         elif event.type() == QEvent.KeyPress and (event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Plus)\
                 and (self.mainwindow.labelling or self.singal):
@@ -372,23 +401,30 @@ class QLineEditMask(QMainWindow):
             self.win.dockWidget_3.close()
         elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
             self.mainwindow.win.pushButton_3.setEnabled(True)
-            self.close()
+            self.label.close()
+        elif event.type() == QEvent.Resize and src == self.label:
+            wfactor = self.w/self.label.geometry().width() if self.w <= self.width else self.w / self.label.geometry().width()
+            hfactor = self.h / self.label.geometry().height() if self.h <= self.height else self.h / self.label.geometry().height()
+            self.label.wfactor = wfactor
+            self.label.hfactor = hfactor
         return super().eventFilter(src, event)
 
     def getnext(self):
         try:
             return next(self.filename)
         except StopIteration:
+
+            return 0
+        except TypeError:
+            Messagebox('Not an Image file')
             return 0
 
-    def print(self, var1, var2, var3):
-        list_widget2 = self.win.listWidget_2
-        text = f'{var1}  Begin: ({var2.x()},{var2.y()})  End: ({var3.x()},{var3.y()})'
-        list_widget2.addItem(text)
-        index = list_widget2.count()-1
-        list_widget2.item(index).setData(Qt.UserRole, (var1, var2, var3))
+    def print(self, var1, var2):
+        self.var1 = var1
+        self.var2 = var2
 
     def print2(self):
+        self.index = self.win.listWidget_2.currentRow()
         self.selected = True
 
     def additem(self):
@@ -398,14 +434,13 @@ class QLineEditMask(QMainWindow):
 
     def removeitem(self):
         row = self.win.listWidget_2.currentIndex().row()
-        index = self.win.listWidget_2.currentIndex().data(Qt.UserRole)[0]
-        self.label.rectlist[index] = None
-        self.label.storeend[index] = None
-        self.label.storebegin[index] = None
-        self.label.newend[index] = None
-        self.label.newbegin[index] = None
+        self.label.rectlist.pop(row)
+        self.label.storeend.pop(row)
+        self.label.storebegin.pop(row)
+        self.label.newend.pop(row)
+        self.label.newbegin.pop(row)
         self.win.listWidget_2.takeItem(row)
-        self.templist[index] = None
+        self.templist.pop(row)
         self.label.update()
 
     def storelabel(self, initpos: QPoint, finalpos: QPoint, name):
@@ -425,18 +460,19 @@ class QLineEditMask(QMainWindow):
                 json.dump(self.storelabeling, file, indent=4)
                 file.close()
         else:
-            print('No Point')
+            with open(self.saveloc, mode='w') as file:
+                json.dump(self.storelabeling, file, indent=4)
+                file.close()
 
     def popupdialog(self, pos):
-        position = self.dialog.dialog.frame_2.pos()
-        y = pos.y() + self.dialog.dialog.frame_2.height() + position.y() - self.pos().y()-self.geometry().height()
-        x = pos.x() + self.dialog.dialog.frame_2.width() + position.x() - self.pos().x() - self.geometry().width()
+        y = pos.y() + self.dialog.dialog.frame_2.height() - self.label.pos().y()-self.label.geometry().height()
+        x = pos.x() + self.dialog.dialog.frame_2.width() - self.label.pos().x() - self.label.geometry().width()
         if y > 0 and x < 0:
-            self.dialog.move(pos.x(), pos.y()-y + position.y())
+            self.dialog.move(pos.x(), pos.y()-y)
         elif x > 0 and y < 0:
-            self.dialog.move(pos.x() - x, pos.y())
+            self.dialog.move(pos.x() - x - 20, pos.y())
         elif x > 0 and y > 0:
-            self.dialog.move(pos.x() - x, pos.y()-y + position.y()+10)
+            self.dialog.move(pos.x() - x - 20, pos.y()-y)
         else:
             self.dialog.move(pos)
         self.dialog.show()
@@ -448,9 +484,14 @@ class QLineEditMask(QMainWindow):
         for file in m:
             path = os.path.join(dir, file.name)
             if os.path.samefile(path, self.last_file):
-                self.readimg(path)
-                self.storelabeling['Image path'] = path
                 self.basename = os.path.splitext(os.path.basename(path))[0]
+                self.win.dockWidget.setFloating(True)
+                self.win.dockWidget_3.setFloating(True)
+                self.readimg(path)
+                self.win.dockWidget.show()
+                self.win.dockWidget_3.show()
+                self.label.show()
+                self.storelabeling['Image path'] = path
                 break
         self.filename = (os.path.join(dir, file.name) for file in m)
         self.saveloc = f'{self.path}\{self.basename}.json'
@@ -459,12 +500,12 @@ class QLineEditMask(QMainWindow):
 
 
 class Dialog(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent, mainwindow):
         super().__init__(parent)
         self.dialog = Ui_Dialog()
         self.dialog.setupUi(self)
         self.setWindowModality(QtCore.Qt.WindowModal)
-        self.mainwin = parent
+        self.mainwin = mainwindow
         self.dialog.listWidget.itemPressed.connect(self.setlabel)
 
     def keyPressEvent(self, event):
@@ -476,10 +517,17 @@ class Dialog(QDialog):
         data = self.dialog.listWidget.currentItem()
         self.mainwin.name = data.text()
         self.mainwin.additem()
+        text = f'{self.mainwin.name}  Begin: ({self.mainwin.var1.x()},{self.mainwin.var1.y()})' \
+               f'  End: ({self.mainwin.var2.x()},{self.mainwin.var2.y()})'
+        list_widget2 = self.mainwin.win.listWidget_2
+        list_widget2.addItem(text)
+        index = list_widget2.count()-1
+        list_widget2.item(index).setData(Qt.UserRole, (self.mainwin.name, self.mainwin.var1, self.mainwin.var2))
         self.close()
 
     def additem(self):
-        self.dialog.listWidget.addItem(self.dialog.lineEdit_4.text())
+        if self.dialog.lineEdit_4.text():
+            self.dialog.listWidget.addItem(self.dialog.lineEdit_4.text())
 
 
 class Dialog3(QDialog):
@@ -493,9 +541,3 @@ class Dialog3(QDialog):
         self.dialog.buttonBox.rejected.connect(lambda: parent.loadimg(False))
         self.dialog.buttonBox.button(QDialogButtonBox.Ok).setFont(font)
         self.dialog.buttonBox.button(QDialogButtonBox.Cancel).setFont(font)
-
-
-os.environ['QT_SCALE_FACTOR'] = str(ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
-os.environ['QT_FONT_DPI'] = str(ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
-if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
