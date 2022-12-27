@@ -2,8 +2,10 @@
 A tool which can do screenshot with fixed size, image augment, and image annotation
 
 # Requirment
-libary: PyQt5, Numpy, Opencv, Cython, pywin32
+Libary: PyQt5, Numpy, Opencv, Cython, pywin32
+
 Interpretor: Python 3.10 or above
+
 Operation system: windows
 
 # Fetures
