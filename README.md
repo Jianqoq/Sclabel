@@ -20,9 +20,13 @@ Operation system: windows
 You can either press Key_Minus or click the create button. If you want to cut the image, left click after the red box shows up. Right click to undo the cropping. Press Key_Return to save the whole screenshot. Press Key_Escape to exit the manipulation if you don't want to do anything. The whole process is done by using temporary file. You would not be able to touch the file until you save it. Temp file will auto delete after you exit or confirm saving.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif.gif)
-
+=======================================================================================================================================================================
 2. Setting window
+See the notes down below. Label file name would be the same as the image file's just with different format. This location is not supported yet, currently label file will be saved in the same directory of image file.
 
+![Image text](https://github.com/Jianqoq/Sclabel/blob/main/Image/setting.png)
+=======================================================================================================================================================================
+3. 
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
 ```   
