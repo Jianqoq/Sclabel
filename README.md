@@ -28,7 +28,7 @@ See the notes down below. Label file name would be the same as the image file's 
 
 ![Image text](https://github.com/Jianqoq/Sclabel/blob/main/Image/setting.png)
 
-3. Anntation(single file)
+3. Annotation(single file)
 
 Click annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labelling mode, a dialog box will popup after mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right hand side, you will see a list of annotation information. double click an item can select a specific box then you will only be able to resize this box. Double click again can cancel the selection. You can delete any boxes by right click item in the list. When you are done, press Key_Return or Key_Plus will exit the annotation mode and a json file will be generated in the same directory of image file.
 
@@ -37,7 +37,7 @@ Click annotation button in the main window will popup a new window. You can drag
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif4.gif)
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif5.gif)
 
-4. Anntation(Multi file)
+4. Annotation(Multi file)
 
 For multi image file annotation, operation is simillar to how you do for single file. You just need to drag a folder instead of an image. After enter the annotation mode, press Key_Arrowleft can go to the next image without saving annotation file, press Key_Plus can go to the next file and generate labelling file, and press Key_Return can exit the software and generate labelling file.
 
