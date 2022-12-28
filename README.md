@@ -55,5 +55,5 @@ scale_factor = 1                        # define scaling factor
 Matix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
-However, by using scale_factor with 1 could cause content losing. To avoid this happens, we need to assign a correct factor value. Saddly. opencv seems doesn't provide function to do this. Thus we need to do some simple geometrical analysis.
+However, it could easily cause content losing by using scale_factor with 1. To avoid this happens, we need to assign a correct factor value. Saddly. Opencv seems doesn't provide a function to solve this. Thus we need to do some simple geometrical analysis.
 
