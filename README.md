@@ -30,21 +30,26 @@ See the notes down below. Label file name would be the same as the image file's 
 
 3. Annotation(single file)
 
-Click annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labelling mode, a dialog box will popup after mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right hand side, you will see a list of annotation information. double click an item can select a specific box then you will only be able to resize this box. Double click again can cancel the selection. You can delete any boxes by right click item in the list. When you are done, press Key_Return or Key_Plus will exit the annotation mode and a json file will be generated in the same directory of image file.
+Click annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labelling mode, a dialog box will popup after mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right hand side, you will see a list of annotation information.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/GIF2.gif)
+
+Double click an item can select a specific box then you will only be able to resize this box. Double click again can cancel the selection. You can delete any boxes by right click item in the list. 
+
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif3.gif)
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif4.gif)
+
+When you are done, press Key_Return or Key_Plus will exit the annotation mode and a json file will be generated in the same directory of image file. Press Key_Plus or Key_Return can exit the software and generate labelling file. 
+
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif5.gif)
 
 4. Annotation(Multi file)
 
-For multi image file annotation, operation is simillar to how you do for single file. You just need to drag a folder instead of an image. After enter the annotation mode, press Key_Arrowleft can go to the next image without saving annotation file, press Key_Plus can go to the next file and generate labelling file, and press Key_Return can exit the software and generate labelling file. 
-
-If you want to continue labelling, simply click confirm directly. Click cancel if you don't want and software will read the image you provided.
+For multi image file annotation, operation is simillar to how you do for single file. You just need to drag a folder instead of an image. If you want to continue labelling, simply click confirm directly and then click OK button. Click cancel if you don't want and software will read the image you provided.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif6.gif)
 
+Note: After enter the annotation mode, press Key_Arrowleft can go to the next image without saving annotation file, press Key_Plus can go to the next file and generate labelling file, or press Key_Return can exit the software and generate labelling file. 
 
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
@@ -66,7 +71,7 @@ Out: (2, 2, 3)
 1   1   1
 4   4   4
 ```
-If we want to crop an image with color. we will simply combine the three big columns to a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the uppper half of the image. In this sofware, a red rectangular will be displayed and its dimension represents slicing area when you are doing image cropping.
+If we want to crop an image with color. we will simply combine the three big columns to a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the uppper half of the image.
 ```
 In: image[0: 1, 0: 2]
 
@@ -74,6 +79,9 @@ Out: array([[[1, 1, 1],
         [4, 4, 4]]])
 ```
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image2.jpg)
+
+In this sofware, a red rectangular will be displayed and its dimension represents slicing area when you are doing image cropping.
+
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/b6e9515a10957967ddee00befa6ea40.png)
 
 # Image processing(How to avoid content losing during rotation by using Opencv)
