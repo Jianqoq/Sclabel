@@ -17,8 +17,8 @@ Operation system: windows
 
 # How to use
 1. Screenshot.
-You can either press Key_Minus or click the create button.
-![](
+You can either press Key_Minus or click the create button. If you want to cut the image, left click after the red box shows up. Right click to undo the cropping. Press return to save the whole screenshot. Press Escape to exit the manipulation if you don't want to do anything. The whole process is done by using temporary file. You would not be able to touch the file until you save it. Temp file will auto delete after you exit or confirm saving.
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif.gif)
 
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
