@@ -123,6 +123,56 @@ def paintEvent(self, event):
                          self.storerectbrushcolor, self.storecirclewidth, self.storecirclebrushcolor,
                          self.storebegin, self.storecircleradius, self.storeend)
 ```
+
+# How to print progress while doing a large dataset manipulation
+In the functions/dataset_manipulation.py file, the function 'print_result' can perform such function.
+
+First, we create a list with 18 space string and 1 brackets [ or ] at both ends of the list
+```
+In: lis = ['[' if i == 0 else ']' if i == 19 else ' ' for i in range(20)]
+In: print(''.join(lis))
+Out: [                  ]
+```
+Second, change the first and second space string to u'\u25A0' which is a unicode will get the output shown below
+```
+In: lis = ['[' if i == 0 else ']' if i == 19 else ' ' for i in range(20)]
+In: lis[1] = u'\u25A0'
+In: lis[2] = u'\u25A0'
+In: print(''.join(lis))
+Out: [■■                ]
+```
+Final code would be
+```
+In: print_result(40, 100)
+Out: [■■■■■■            ] 40.00%
+```
 # How to split imageset to train and validation
+
+Such function can be found in the functions/dataset_manipulation.py file.
+First we get the list contains all the image file ends with '.png'
+```
+list = [file.name for file in os.scandir(origi_dir) if file.name.endswith('.png')]
+```
+Second, we iterate through the list and get the sorce path of json file and image file then move to the distination folder. stop once the train/val ratio reached.
+progress can be printed 
+```
+list = [file.name for file in os.scandir(origi_dir) if file.name.endswith('.png')]
+length = len(list)
+limit = (1-ratio)*length
+count = 0
+    for index, name in enumerate(list):
+        if index <= limit:
+            basename = os.path.splitext(name)[0]
+            newname = f'{basename}{label_suffix}'
+            label_file_path = os.path.join(origi_dir, newname)
+            src = os.path.join(origi_dir, name)
+            try:
+                shutil.move(src, dist_trainimg_dir)
+                shutil.move(label_file_path, dist_trainlabel_dir)
+            except Exception as e:
+                print(e)
+                break
+            print_result(index, limit)
+```
 
 # How to do image processing by using only one method
