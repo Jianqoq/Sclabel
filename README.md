@@ -78,7 +78,7 @@ scale_factor = 1                        # define scaling factor
 Matrix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
-However, it could easily cause content losing by using scale_factor with 1. To avoid this happens, we need to assign a correct factor value. Saddly. Opencv seems doesn't provide a function to solve this. Thus we need to do some simple geometrical analysis.
+However, it could easily cause content losing by using scale_factor with 1. To avoid this happens, we need to assign a correct factor value no matter what the rotation angle is. Saddly. Opencv seems doesn't provide a function to get this scale factor value. Thus, we need to do some simple geometrical analysis.
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image3.jpg)
 We first need to get the new width and new height. Then, we can calculate the scale factor for the corresponding edge. We pick the smallest factor by comparing these two value. The source code can be found at functions/calculation.py. Thus, we change some code.
 ```
