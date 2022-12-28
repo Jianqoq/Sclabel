@@ -62,8 +62,8 @@ We first need to get the new width and new height. Then, we can calculate the sc
 image = cv2.imread(image_path)    # read image
 rotate_angle = 90                 # define rotate angle
 rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
-new_height = calculate.new_height(angle, rows, cols)     # calculate new height
-new_width = calculate.new_width(angle, rows, cols)       # calculate new width
+new_height = calculate.new_height(rotate_angle, rows, cols)     # calculate new height
+new_width = calculate.new_width(rotate_angle, rows, cols)       # calculate new width
 scale_factor = calculate.compare(new_height, new_width, rows, cols)                     # calculate scale factor
 Matix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
