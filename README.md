@@ -154,25 +154,33 @@ First we get the list contains all the image file ends with '.png'
 list = [file.name for file in os.scandir(origi_dir) if file.name.endswith('.png')]
 ```
 Second, we iterate through the list and get the sorce path of json file and image file then move to the distination folder. stop once the train/val ratio reached.
-progress can be printed 
+progress can be printed by providing the total number of files we need to process and the current file number. use a simillar for loop to move the rest of the file to validation folder.
 ```
 list = [file.name for file in os.scandir(origi_dir) if file.name.endswith('.png')]
-length = len(list)
-limit = (1-ratio)*length
-count = 0
-    for index, name in enumerate(list):
-        if index <= limit:
-            basename = os.path.splitext(name)[0]
-            newname = f'{basename}{label_suffix}'
-            label_file_path = os.path.join(origi_dir, newname)
-            src = os.path.join(origi_dir, name)
-            try:
-                shutil.move(src, dist_trainimg_dir)
-                shutil.move(label_file_path, dist_trainlabel_dir)
-            except Exception as e:
-                print(e)
-                break
-            print_result(index, limit)
+length = len(list)              
+limit = (1-ratio)*length        # get the total file numbers we need to process
+for index, name in enumerate(list):
+    if index <= limit:
+        basename = os.path.splitext(name)[0]
+        newname = f'{basename}{label_suffix}'
+        label_file_path = os.path.join(origi_dir, newname)
+        src = os.path.join(origi_dir, name)
+        try:
+            shutil.move(src, dist_trainimg_dir)
+            shutil.move(label_file_path, dist_trainlabel_dir)
+        except Exception as e:
+            print(e)
+            break
+        print_result(index, limit)
 ```
-
-# How to do image processing by using only one method
+Finally, you can simply perform this splitting by calling 'split_dataset_2_train_val' function, where 0.8 is trainning data and (1-0.8) would be the validation data. '.png' is image format and '.txt' is labelling file format.
+```
+split_dataset_2_train_val(0.8, r'C:\Users\Public\Pictures\data\DATASET',
+                          r'C:\Users\Public\Pictures\VOCdevkit\images\Train',
+                          r'C:\Users\Public\Pictures\VOCdevkit\labels\Train',
+                          r'C:\Users\Public\Pictures\VOCdevkit\images\Val',
+                          r'C:\Users\Public\Pictures\VOCdevkit\labels\Val',
+                          '.png', '.txt')
+```
+# How convert json file to Yolo format
+In the functions/dataset_manipulation.py file, I provided an example to do this.
