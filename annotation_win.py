@@ -1,7 +1,6 @@
-import ctypes
 import cv2
 import json
-from PyQt5.QtWidgets import QMainWindow, QApplication, QColorDialog, QMenu, QAction, QDialog, QDialogButtonBox
+from PyQt5.QtWidgets import QMainWindow, QColorDialog, QMenu, QAction, QDialog, QDialogButtonBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIntValidator
 from UI.class_dialog import *
@@ -19,7 +18,6 @@ class QLineEditMask(QMainWindow):
         self.win = Ui_Form()
         self.win.setupUi(self)
         self.setMouseTracking(True)
-        #self.setAcceptDrops(True)
         self.setMaximumSize(self.size())
         self.setMinimumSize(self.size())
         self.dpi = self.devicePixelRatioF()
@@ -38,10 +36,6 @@ class QLineEditMask(QMainWindow):
         self.action4 = QAction('Delete')
         self.win.pushButton.setMenu(self.menu())
         self.win.pushButton_3.setMenu(self.menu2())
-        self.action1.triggered.connect(self.rectborder_color_picker)
-        self.action2.triggered.connect(self.rectbrush_color_picker)
-        self.action3.triggered.connect(self.circle_color_picker)
-        self.action4.triggered.connect(self.removeitem)
         self.win.dockWidget.installEventFilter(self)
         self.win.listWidget_2.installEventFilter(self)
         self.win.dockWidget_3.installEventFilter(self)
@@ -54,9 +48,9 @@ class QLineEditMask(QMainWindow):
         self.win.dockWidget.setParent(self.label)
         self.win.dockWidget_3.setParent(self.label)
         self.dialog = Dialog(self.label, self)
-        shadow(self.dialog)
         self.dialog.setWindowFlag(Qt.FramelessWindowHint)
         self.dialog.setAttribute(Qt.WA_TranslucentBackground)
+        shadow(self.dialog)
         self.mainwindow = mainwindow
         self.last_file = read_savedfile(self.mainwindow)
         self.name = None
@@ -72,6 +66,7 @@ class QLineEditMask(QMainWindow):
         self.saveloc = None
         self.color = None
         self.displayed = False
+        self.lastname = None
         self.dir = False
         self.singal = False
         self.toggle5 = False
@@ -90,16 +85,23 @@ class QLineEditMask(QMainWindow):
         self.templist = []
         self.originpos = self.win.pushButton_5.pos()
         self.originpos2 = self.win.horizontalSlider.pos()
+        self.action1.triggered.connect(self.rectborder_color_picker)
+        self.action2.triggered.connect(self.rectbrush_color_picker)
+        self.action3.triggered.connect(self.circle_color_picker)
+        self.action4.triggered.connect(lambda: self.removeitem(self.label))
         self.win.lineEdit_3.textEdited.connect(self.drop)
-        self.win.pushButton_2.clicked.connect(self.showlineedit)
-        self.win.pushButton_5.clicked.connect(self.showlineedit_2)
-        self.win.pushButton_6.clicked.connect(self.showslider)
+        self.win.pushButton_2.clicked.connect(lambda: self.showlineedit(self.win))
+        self.win.pushButton_5.clicked.connect(lambda: self.showlineedit_2(self.win))
+        self.win.pushButton_6.clicked.connect(lambda: self.showslider(self.win))
         self.win.lineEdit.textEdited.connect(self.update)
         self.win.lineEdit_2.textEdited.connect(self.update2)
         self.win.horizontalSlider.valueChanged.connect(self.displayvalue)
         self.win.listWidget_2.itemPressed.connect(self.print2)
-        self.win.listWidget_2.doubleClicked.connect(self.highlight)
-        self.win.pushButton_7.clicked.connect(lambda: self.loadimg(True))
+        self.win.listWidget_2.doubleClicked.connect(lambda: self.highlight(self.label, self.label.storerectbrushcolor,
+                                                                           self.label.storecolor, self.label.selectedbox_begin,
+                                                                           self.label.selectedbox_end, self.label.storebegin,
+                                                                           self.label.storeend))
+        self.win.pushButton_7.clicked.connect(lambda: self.loadimg(True, self.win, self.path, self.label))
         self.label.signal2.connect(self.print)
 
     def drop(self):
@@ -155,105 +157,105 @@ class QLineEditMask(QMainWindow):
         color = dialog.getColor(options=QColorDialog.ShowAlphaChannel)
         self.label.circlebrushcolor = QBrush(color, Qt.SolidPattern) if color.isValid() else False
 
-    def showlineedit(self):
+    def showlineedit(self, win):
         if not self.toggle2 and not self.toggle3:
-            self.win.lineEdit.resize(self.win.pushButton_4.size().width(), self.win.pushButton_4.size().height())
-            animation = QPropertyAnimation(self.win.lineEdit, b"pos", self.win.dockWidget)
-            animation.setStartValue(self.win.pushButton_4.pos())
-            animation.setEndValue(self.win.pushButton_2.pos())
+            win.lineEdit.resize(win.pushButton_4.size().width(), win.pushButton_4.size().height())
+            animation = QPropertyAnimation(win.lineEdit, b"pos", win.dockWidget)
+            animation.setStartValue(win.pushButton_4.pos())
+            animation.setEndValue(win.pushButton_2.pos())
             animation.setDuration(150)
-            animation2 = QPropertyAnimation(self.win.pushButton_2, b"pos", self.win.dockWidget)
-            animation2.setStartValue(self.win.pushButton_2.pos())
-            distance = self.win.pushButton_4.pos().y() - self.win.pushButton_2.pos().y()
-            animation2.setEndValue(QPoint(self.win.pushButton_2.pos().x(), self.win.pushButton_2.pos().y() - distance))
+            animation2 = QPropertyAnimation(win.pushButton_2, b"pos", win.dockWidget)
+            animation2.setStartValue(win.pushButton_2.pos())
+            distance = win.pushButton_4.pos().y() - win.pushButton_2.pos().y()
+            animation2.setEndValue(QPoint(win.pushButton_2.pos().x(), win.pushButton_2.pos().y() - distance))
             animation2.setDuration(150)
-            self.win.lineEdit.show()
+            win.lineEdit.show()
             animation.start()
             animation2.start()
             self.toggle = True
 
-    def closelineedit(self):
-        animation = QPropertyAnimation(self.win.lineEdit, b"pos", self.win.dockWidget)
-        animation.setStartValue(self.win.pushButton_2.pos())
-        animation.setEndValue(self.win.pushButton_4.pos())
+    def closelineedit(self, win):
+        animation = QPropertyAnimation(win.lineEdit, b"pos", win.dockWidget)
+        animation.setStartValue(win.pushButton_2.pos())
+        animation.setEndValue(win.pushButton_4.pos())
         animation.setDuration(150)
-        animation2 = QPropertyAnimation(self.win.pushButton_2, b"pos", self.win.dockWidget)
-        animation2.setStartValue(self.win.pushButton_2.pos())
-        animation2.setEndValue(QPoint(self.win.lineEdit.pos()))
+        animation2 = QPropertyAnimation(win.pushButton_2, b"pos", win.dockWidget)
+        animation2.setStartValue(win.pushButton_2.pos())
+        animation2.setEndValue(QPoint(win.lineEdit.pos()))
         animation2.setDuration(150)
         animation.start()
         animation2.start()
-        self.win.lineEdit.hide()
+        win.lineEdit.hide()
         self.toggle = False
 
-    def showlineedit_2(self):
+    def showlineedit_2(self, win):
         if not self.toggle3 and not self.toggle:
-            self.win.lineEdit_2.resize(self.win.pushButton_4.size().width(), self.win.pushButton_4.size().height())
-            animation = QPropertyAnimation(self.win.lineEdit_2, b"pos", self.win.dockWidget)
-            animation.setStartValue(self.win.pushButton_4.pos())
-            animation.setEndValue(self.win.pushButton_5.pos())
+            win.lineEdit_2.resize(win.pushButton_4.size().width(), win.pushButton_4.size().height())
+            animation = QPropertyAnimation(win.lineEdit_2, b"pos", win.dockWidget)
+            animation.setStartValue(win.pushButton_4.pos())
+            animation.setEndValue(win.pushButton_5.pos())
             animation.setDuration(150)
-            animation2 = QPropertyAnimation(self.win.pushButton_5, b"pos", self.win.dockWidget)
-            animation2.setStartValue(self.win.pushButton_5.pos())
-            animation2.setEndValue(QPoint(self.win.pushButton_5.pos().x() + 120, self.win.pushButton_5.pos().y()))
+            animation2 = QPropertyAnimation(win.pushButton_5, b"pos", win.dockWidget)
+            animation2.setStartValue(win.pushButton_5.pos())
+            animation2.setEndValue(QPoint(win.pushButton_5.pos().x() + 120, win.pushButton_5.pos().y()))
             animation2.setDuration(150)
-            self.win.lineEdit_2.show()
+            win.lineEdit_2.show()
             animation.start()
             animation2.start()
             self.toggle2 = True
 
-    def closelineedit_2(self):
-        animation = QPropertyAnimation(self.win.lineEdit_2, b"pos", self.win.dockWidget)
-        animation.setStartValue(self.win.lineEdit_2.pos())
-        animation.setEndValue(self.win.pushButton_4.pos())
+    def closelineedit_2(self, win):
+        animation = QPropertyAnimation(win.lineEdit_2, b"pos", win.dockWidget)
+        animation.setStartValue(win.lineEdit_2.pos())
+        animation.setEndValue(win.pushButton_4.pos())
         animation.setDuration(150)
-        animation2 = QPropertyAnimation(self.win.pushButton_5, b"pos", self.win.dockWidget)
-        animation2.setStartValue(self.win.pushButton_5.pos())
+        animation2 = QPropertyAnimation(win.pushButton_5, b"pos", win.dockWidget)
+        animation2.setStartValue(win.pushButton_5.pos())
         animation2.setEndValue(QPoint(self.originpos))
         animation2.setDuration(150)
         animation.start()
         animation2.start()
-        self.win.lineEdit.hide()
+        win.lineEdit.hide()
         self.toggle2 = False
 
-    def showslider(self):
+    def showslider(self, win):
         if not self.toggle2 and not self.toggle:
-            animation = QPropertyAnimation(self.win.horizontalSlider, b"pos", self.win.dockWidget)
-            animation.setStartValue(self.win.horizontalSlider.pos())
-            animation.setEndValue(self.win.checkBox.pos())
+            animation = QPropertyAnimation(win.horizontalSlider, b"pos", win.dockWidget)
+            animation.setStartValue(win.horizontalSlider.pos())
+            animation.setEndValue(win.checkBox.pos())
             animation.setDuration(150)
-            animation2 = QPropertyAnimation(self.win.checkBox, b"pos", self.win.dockWidget)
-            animation2.setStartValue(self.win.checkBox.pos())
+            animation2 = QPropertyAnimation(win.checkBox, b"pos", win.dockWidget)
+            animation2.setStartValue(win.checkBox.pos())
             animation2.setEndValue(QPoint(10, 190))
             animation2.setDuration(150)
             animation.start()
             animation2.start()
-            self.win.pushButton_6.setEnabled(False)
-            self.win.pushButton_6.setText(str(self.win.horizontalSlider.value()))
+            win.pushButton_6.setEnabled(False)
+            win.pushButton_6.setText(str(win.horizontalSlider.value()))
             self.toggle3 = True
 
-    def closeslider(self):
-        animation = QPropertyAnimation(self.win.horizontalSlider, b"pos", self.win.dockWidget)
-        animation.setStartValue(self.win.horizontalSlider.pos())
+    def closeslider(self, win):
+        animation = QPropertyAnimation(win.horizontalSlider, b"pos", win.dockWidget)
+        animation.setStartValue(win.horizontalSlider.pos())
         animation.setEndValue(self.originpos2)
         animation.setDuration(150)
-        animation2 = QPropertyAnimation(self.win.checkBox, b"pos", self.win.dockWidget)
-        animation2.setStartValue(self.win.checkBox.pos())
-        animation2.setEndValue(self.win.horizontalSlider.pos())
+        animation2 = QPropertyAnimation(win.checkBox, b"pos", win.dockWidget)
+        animation2.setStartValue(win.checkBox.pos())
+        animation2.setEndValue(win.horizontalSlider.pos())
         animation2.setDuration(150)
         animation.start()
         animation2.start()
-        self.win.pushButton_6.setEnabled(True)
-        self.win.pushButton_6.setText('Circle Radius')
+        win.pushButton_6.setEnabled(True)
+        win.pushButton_6.setText('Circle Radius')
         self.toggle3 = False
 
-    def loadimg(self, check):
+    def loadimg(self, check, win, path, label):
         if os.path.exists(self.last_file) and check:
             Dialog3(self).show()
         else:
             try:
-                m = os.scandir(self.path)
-                self.filename = (os.path.join(self.path, file.name) for file in m)
+                m = os.scandir(path)
+                self.filename = (os.path.join(path, file.name) for file in m)
                 try:
                     imgname = next(self.filename)
                 except BaseException as e:
@@ -261,30 +263,30 @@ class QLineEditMask(QMainWindow):
                     return
                 self.storelabeling['Image path'] = imgname
                 self.basename = os.path.splitext(os.path.basename(imgname))[0]
-                self.saveloc = rf'{self.path}\{self.basename}.json'
-                self.win.dockWidget.setFloating(True)
-                self.win.dockWidget_3.setFloating(True)
-                self.readimg(imgname)
+                self.saveloc = rf'{path}\{self.basename}.json'
+                win.dockWidget.setFloating(True)
+                win.dockWidget_3.setFloating(True)
+                self.readimg(imgname, win, label, self.width, self.height)
                 self.dir = True
                 self.singal = False
-                self.win.dockWidget.show()
-                self.win.dockWidget_3.show()
-                self.label.show()
+                win.dockWidget.show()
+                win.dockWidget_3.show()
+                label.show()
                 self.hide()
             except OSError as e:
                 if e.errno == 20:
-                    self.win.dockWidget.setFloating(True)
-                    self.win.dockWidget_3.setFloating(True)
-                    self.readimg(self.path)
-                    self.basename = os.path.splitext(os.path.basename(self.path))[0]
-                    dir = os.path.dirname(os.path.realpath(self.path))
+                    win.dockWidget.setFloating(True)
+                    win.dockWidget_3.setFloating(True)
+                    self.basename = os.path.splitext(os.path.basename(path))[0]
+                    self.readimg(path, win, label, self.width, self.height)
+                    dir = os.path.dirname(os.path.realpath(path))
                     self.saveloc = rf'{dir}\{self.basename}.json'
-                    self.storelabeling['Image path'] = self.path
+                    self.storelabeling['Image path'] = path
                     self.dir = False
                     self.singal = True
-                    self.label.show()
-                    self.win.dockWidget.show()
-                    self.win.dockWidget_3.show()
+                    label.show()
+                    win.dockWidget.show()
+                    win.dockWidget_3.show()
                     self.hide()
                 elif e.errno == 2:
                     print('Invalid path')
@@ -294,7 +296,7 @@ class QLineEditMask(QMainWindow):
         self.basename = os.path.splitext(os.path.basename(filename))[0]
         self.saveloc = f'{self.path}\{self.basename}.json'
 
-    def readimg(self, path):
+    def readimg(self, path, win, label, width, height):
         if path == 0:
             self.close()
             return
@@ -304,32 +306,35 @@ class QLineEditMask(QMainWindow):
                 img = QPixmap(path)
                 changed = True if self.w != img.width() else False
                 self.w = int(img.width() // self.dpi)
+                new_w = self.w
                 self.h = int(img.height() // self.dpi)
-                realwidth = self.w if self.w <= self.width else self.width
-                realheight = self.h if self.w <= self.height else self.height
-                windowposx = (self.width - realwidth)//2
-                windowposy = (self.height - realheight)//2
-                self.label.image = img
+                new_h = self.h
+                realwidth = new_w if new_w <= width else width
+                realheight = new_h if new_w <= height else height
+                windowposx = (width - realwidth)//2
+                windowposy = (height - realheight)//2
+                label.image = img
                 self.storelabeling['Image_width'] = img.width()
                 self.storelabeling['Image_height'] = img.height()
-                self.label.setGeometry(windowposx, windowposy, self.w, self.h)
-                self.label.setWindowTitle(self.basename)
-                dockwidth = self.win.dockWidget.width()
-                dockposy = (self.height - self.win.dockWidget.height())//2
-                dockposy2 = (self.height - self.win.dockWidget_3.height())//2
-                x = (self.width + realwidth)//2
+                label.setGeometry(windowposx, windowposy, new_w, new_h)
+                label.setWindowTitle(self.basename)
+                dockwidth = win.dockWidget.width()
+                dockposy = (height - win.dockWidget.height())//2
+                dockposy2 = (height - win.dockWidget_3.height())//2
+                x = (width + realwidth)//2
                 if changed and windowposx - dockwidth < 0:
-                    self.win.dockWidget.move(0, dockposy)
+                    win.dockWidget.move(0, dockposy)
                 elif changed:
-                    self.win.dockWidget.move(windowposx - dockwidth, dockposy)
-                if changed and x + realwidth >= self.width:
-                    self.win.dockWidget_3.move(self.width - self.win.dockWidget_3.width(), dockposy2)
+                    win.dockWidget.move(windowposx - dockwidth, dockposy)
+                if changed and x + realwidth >= width:
+                    win.dockWidget_3.move(width - win.dockWidget_3.width(), dockposy2)
                 elif changed:
-                    self.win.dockWidget_3.move(windowposx + realwidth, dockposy2)
-                self.label.repaint()
+                    win.dockWidget_3.move(windowposx + realwidth, dockposy2)
+                label.repaint()
             else:
                 path = self.getnext()
-                self.readimg(path)
+                self.readimg(path, win, label, width, height)
+                self.lastname = path
 
     def eventFilter(self, src, event):
 
@@ -338,11 +343,11 @@ class QLineEditMask(QMainWindow):
         elif event.type() == QEvent.Drop:
             self.path = event.mimeData().urls()[0].toLocalFile()
         elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.win.dockWidget and self.toggle:
-            self.closelineedit()
+            self.closelineedit(self.win)
         elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.win.dockWidget and self.toggle2:
-            self.closelineedit_2()
+            self.closelineedit_2(self.win)
         elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.win.dockWidget and self.toggle3:
-            self.closeslider()
+            self.closeslider(self.win)
         elif event.type() == QEvent.ContextMenu and QtCore.Qt.RightButton and\
                 src == self.win.listWidget_2 and self.selected:
             self.selected = False
@@ -357,14 +362,15 @@ class QLineEditMask(QMainWindow):
         elif event.type() == QEvent.KeyPress and event.key() == 16777236 and self.dir:
             file = self.getnext()
             if file != 0:
+                self.lastname = file
                 self.label.clear()
                 self.updatesaveloc(file)
-                self.readimg(file)
-                autosave(self.mainwindow, file, 'Saving setting', 'Last annotation file')
+                self.readimg(file, self.win, self.label, self.width, self.height)
+                autosave(self.mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
             else:
-                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
+                autosave(self.mainwindow, None, 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
                 self.label.clear()
@@ -373,15 +379,16 @@ class QLineEditMask(QMainWindow):
         elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Plus and self.dir:
             file = self.getnext()
             if file != 0:
+                self.lastname = file
                 self.label.clear()
-                self.savefile()
+                self.savefile(self.templist, self.storelabeling, self.saveloc)
                 self.updatesaveloc(file)
-                self.readimg(file)
-                autosave(self.mainwindow, file, 'Saving setting', 'Last annotation file')
+                self.readimg(file, self.win, self.label, self.width, self.height)
+                autosave(self.mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
             else:
-                self.savefile()
+                self.savefile(self.templist, self.storelabeling, self.saveloc)
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
                 self.label.clear()
@@ -390,7 +397,7 @@ class QLineEditMask(QMainWindow):
                 self.close()
         elif event.type() == QEvent.KeyPress and (event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Plus)\
                 and (self.mainwindow.labelling or self.singal):
-            self.savefile()
+            self.savefile(self.templist, self.storelabeling, self.saveloc)
             self.close()
             self.win.dockWidget.close()
             self.win.dockWidget_3.close()
@@ -400,6 +407,7 @@ class QLineEditMask(QMainWindow):
             self.mainwindow.show()
         elif event.type() == QEvent.Close:
             self.mainwindow.win.pushButton_3.setEnabled(True)
+            self.close()
             self.win.dockWidget.close()
             self.win.dockWidget_3.close()
         elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
@@ -429,49 +437,52 @@ class QLineEditMask(QMainWindow):
     def print2(self):
         self.selected = True
 
-    def highlight(self):
-        if not self.label.selected:
-            index = self.win.listWidget_2.currentRow()
+    def highlight(self, label, storerectbrushcolor, storecolor, selectedbox_begin, selectedbox_end, storebegin, storeend):
+        current_row = self.win.listWidget_2.currentRow()
+        prev_index = self.index
+        if not label.selected:
+            index = current_row
             self.index = index
-            self.label.storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
-            self.label.storecolor[index] = QColor(248, 255, 106, 255)
-            self.label.selectedbox_begin.append(self.label.storebegin[index])
-            self.label.selectedbox_end.append(self.label.storeend[index])
-            self.label.repaint()
-            self.label.selected = True
-        elif self.label.selected and self.win.listWidget_2.currentRow() != self.index:
-            index = self.win.listWidget_2.currentRow()
-            self.label.storerectbrushcolor[self.index] = self.label.rectbrushcolor
-            self.label.storecolor[self.index] = self.label.brush
-            self.label.storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
-            self.label.storecolor[index] = QColor(248, 255, 106, 255)
-            self.label.selectedbox_begin[0] = self.label.storebegin[index]
-            self.label.selectedbox_end[0] = self.label.storeend[index]
-            self.label.repaint()
+            storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
+            storecolor[index] = QColor(248, 255, 106, 255)
+            selectedbox_begin.append(storebegin[index])
+            selectedbox_end.append(storeend[index])
+            label.repaint()
+            label.selected = True
+        elif label.selected and current_row != prev_index:
+            index = current_row
+            storerectbrushcolor[prev_index] = label.rectbrushcolor
+            storecolor[prev_index] = label.brush
+            storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
+            storecolor[index] = QColor(248, 255, 106, 255)
+            selectedbox_begin[0] = storebegin[index]
+            selectedbox_end[0] = storeend[index]
+            label.repaint()
             self.index = index
-        elif self.label.selected and self.win.listWidget_2.currentRow() == self.index:
-            self.label.storerectbrushcolor[self.index] = self.label.rectbrushcolor
-            self.label.storecolor[self.index] = self.label.brush
-            self.label.selectedbox_begin.pop()
-            self.label.selectedbox_end.pop()
-            self.label.repaint()
-            self.label.selected = False
+        elif label.selected and current_row == prev_index:
+            storerectbrushcolor[prev_index] = label.rectbrushcolor
+            storecolor[prev_index] = label.brush
+            selectedbox_begin.pop()
+            selectedbox_end.pop()
+            label.repaint()
+            label.selected = False
+            self.win.listWidget_2.clearSelection()
 
     def additem(self):
         storebegin = self.label.newbegin
         storeend = self.label.newend
         self.templist.append(self.storelabel(storebegin[-1], storeend[-1], self.name))
 
-    def removeitem(self):
+    def removeitem(self, label):
         row = self.win.listWidget_2.currentIndex().row()
-        self.label.rectlist.pop(row)
-        self.label.storeend.pop(row)
-        self.label.storebegin.pop(row)
-        self.label.newend.pop(row)
-        self.label.newbegin.pop(row)
+        label.rectlist.pop(row)
+        label.storeend.pop(row)
+        label.storebegin.pop(row)
+        label.newend.pop(row)
+        label.newbegin.pop(row)
         self.win.listWidget_2.takeItem(row)
         self.templist.pop(row)
-        self.label.update()
+        label.update()
 
     def storelabel(self, initpos: QPoint, finalpos: QPoint, name):
         labelingdict = {
@@ -481,50 +492,50 @@ class QLineEditMask(QMainWindow):
         }
         return labelingdict
 
-    def savefile(self):
-        if len(self.templist) > 0:
-            for index, point in enumerate(self.templist):
+    def savefile(self, templist, storelabeling, saveloc):
+        if templist:
+            for index, point in enumerate(templist):
                 if point is not None:
-                    self.storelabeling['Label'].append(self.templist[index])
-            with open(self.saveloc, mode='w') as file:
-                json.dump(self.storelabeling, file, indent=4)
+                    storelabeling['Label'].append(templist[index])
+            with open(saveloc, mode='w') as file:
+                json.dump(storelabeling, file, indent=4)
                 file.close()
         else:
-            with open(self.saveloc, mode='w') as file:
-                json.dump(self.storelabeling, file, indent=4)
+            with open(saveloc, mode='w') as file:
+                json.dump(storelabeling, file, indent=4)
                 file.close()
 
-    def popupdialog(self, pos):
-        y = pos.y() + self.dialog.dialog.frame_2.height() - self.label.pos().y()-self.label.geometry().height()
-        x = pos.x() + self.dialog.dialog.frame_2.width() - self.label.pos().x() - self.label.geometry().width()
+    def popupdialog(self, pos, dialog, label):
+        y = pos.y() + dialog.dialog.frame_2.height() - label.pos().y()- label.geometry().height()
+        x = pos.x() + dialog.dialog.frame_2.width() - label.pos().x() - label.geometry().width()
         if y > 0 and x < 0:
-            self.dialog.move(pos.x(), pos.y()-y)
+            dialog.move(pos.x(), pos.y()-y)
         elif x > 0 and y < 0:
-            self.dialog.move(pos.x() - x - 20, pos.y())
+            dialog.move(pos.x() - x - 20, pos.y())
         elif x > 0 and y > 0:
-            self.dialog.move(pos.x() - x - 20, pos.y()-y)
+            dialog.move(pos.x() - x - 20, pos.y()-y)
         else:
-            self.dialog.move(pos)
-        self.dialog.show()
+            dialog.move(pos)
+        dialog.show()
 
-    def go2lastsaved(self):
+    def go2lastsaved(self, win, basename):
         dir = os.path.dirname(self.last_file)
         self.path = dir
         m = os.scandir(dir)
         for file in m:
             path = os.path.join(dir, file.name)
             if os.path.samefile(path, self.last_file):
-                self.basename = os.path.splitext(os.path.basename(path))[0]
-                self.win.dockWidget.setFloating(True)
-                self.win.dockWidget_3.setFloating(True)
-                self.readimg(path)
-                self.win.dockWidget.show()
-                self.win.dockWidget_3.show()
+                basename = os.path.splitext(os.path.basename(path))[0]
+                win.dockWidget.setFloating(True)
+                win.dockWidget_3.setFloating(True)
+                self.readimg(path, win, self.label, self.width, self.height)
+                win.dockWidget.show()
+                win.dockWidget_3.show()
                 self.label.show()
                 self.storelabeling['Image path'] = path
                 break
         self.filename = (os.path.join(dir, file.name) for file in m)
-        self.saveloc = f'{self.path}\{self.basename}.json'
+        self.saveloc = f'{self.path}\{basename}.json'
         self.dir = True
         self.singal = False
 
@@ -536,28 +547,28 @@ class Dialog(QDialog):
         self.dialog.setupUi(self)
         self.setWindowModality(QtCore.Qt.WindowModal)
         self.mainwin = mainwindow
-        self.dialog.listWidget.itemPressed.connect(self.setlabel)
+        self.dialog.listWidget.itemPressed.connect(lambda: self.setlabel(self.mainwin))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return:
-            self.additem()
+            self.additem(self.dialog)
             self.dialog.lineEdit_4.clear()
 
-    def setlabel(self):
+    def setlabel(self, mainwin):
         data = self.dialog.listWidget.currentItem()
-        self.mainwin.name = data.text()
-        self.mainwin.additem()
-        text = f'{self.mainwin.name}  Begin: ({self.mainwin.var1.x()},{self.mainwin.var1.y()})' \
-               f'  End: ({self.mainwin.var2.x()},{self.mainwin.var2.y()})'
-        list_widget2 = self.mainwin.win.listWidget_2
+        mainwin.name = data.text()
+        mainwin.additem()
+        text = f'{mainwin.name}  Begin: ({mainwin.var1.x()},{mainwin.var1.y()})' \
+               f'  End: ({mainwin.var2.x()},{mainwin.var2.y()})'
+        list_widget2 = mainwin.win.listWidget_2
         list_widget2.addItem(text)
         index = list_widget2.count()-1
-        list_widget2.item(index).setData(Qt.UserRole, (self.mainwin.name, self.mainwin.var1, self.mainwin.var2))
+        list_widget2.item(index).setData(Qt.UserRole, (mainwin.name, mainwin.var1, mainwin.var2))
         self.close()
 
-    def additem(self):
-        if self.dialog.lineEdit_4.text():
-            self.dialog.listWidget.addItem(self.dialog.lineEdit_4.text())
+    def additem(self, dialog):
+        if dialog.lineEdit_4.text():
+            dialog.listWidget.addItem(dialog.lineEdit_4.text())
 
 
 class Dialog3(QDialog):
@@ -567,7 +578,7 @@ class Dialog3(QDialog):
         self.dialog.setupUi(self)
         font = QtGui.QFont()
         font.setPixelSize(12)
-        self.dialog.buttonBox.accepted.connect(parent.go2lastsaved)
+        self.dialog.buttonBox.accepted.connect(lambda: parent.go2lastsaved(parent.win, parent.basename))
         self.dialog.buttonBox.rejected.connect(lambda: parent.loadimg(False))
         self.dialog.buttonBox.button(QDialogButtonBox.Ok).setFont(font)
         self.dialog.buttonBox.button(QDialogButtonBox.Cancel).setFont(font)
