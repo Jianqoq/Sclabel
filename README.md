@@ -71,6 +71,6 @@ rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
 new_height = calculation.new_height(rotate_angle, rows, cols)     # calculate new height
 new_width = calculation.new_width(rotate_angle, rows, cols)       # calculate new width
 scale_factor = calculation.compare(new_height, new_width, rows, cols)                     # calculate scale factor
-Matix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
+Matix = cv2.getRotationMatrix2D(((cols-1)//2, (rows-1)//2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
