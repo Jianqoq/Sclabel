@@ -31,6 +31,9 @@ See the notes down below. Label file name would be the same as the image file's 
 3. Anntation(single file)
 
 Click annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labelling mode, a dialog box will popup after mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right hand side, you will see a list of annotation information. double click an item can select a specific box then you will only be able to resize this box. Double click again can cancel the selection. You can delete any boxes by right click item in the list. When you are done, press Key_Return or Key_Plus will exit the annotation mode and a json file will be generated in the same directory of image file.
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/GIF2.gif)
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif3.gif)
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif4.gif)
 
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
