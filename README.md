@@ -17,9 +17,7 @@ Operation system: windows
 
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
-```
-    import numpy as np
-    
+```   
 In: image = np.array([[[1, 1, 1],
                        [4, 4, 4]],
                       [[1, 1, 1],
@@ -39,8 +37,6 @@ Out: (2, 2, 3)
 ```
 If we want to crop an image with color. we will simply combine the three big columns to a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the uppper half of the image. In this sofware, a red rectangular will be displayed and its dimension represents slicing area when you are doing image cropping.
 ```
-    import numpy as np
-    
 In: array[0: 1, 0: 2]
 
 Out: array([[[1, 1, 1],
