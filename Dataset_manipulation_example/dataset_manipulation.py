@@ -3,8 +3,7 @@ import shutil
 from Image_process import *
 from file_manipulation import *
 
-
-# Do mirror for the flipped imageset
+# ======================================================================================================================
 def print_result(current, total):
     lis = ['[' if i == 0 else ']' if i == 19 else ' ' for i in range(20)]
     index = int(current/total*20)
@@ -21,7 +20,7 @@ def print_result(current, total):
     else:
         string = ''.join(lis)
         print(f'\r{string} {percentage}%', end='', flush=True)
-
+# ======================================================================================================================
 
 def mirror(Savelocation, Image_dir):
     open_dir(Savelocation, False)
@@ -130,7 +129,7 @@ def split_dataset_2_train_val(ratio: float, origi_dir: str, dist_trainimg_dir: s
     else:
         pass
     print('\nFile Transfer Successfully!')
-
+# ======================================================================================================================
 
 def rename(dir, dst, name, suffix, start):
     open_dir(dir, False)
