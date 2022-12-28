@@ -45,7 +45,7 @@ Out: array([[[1, 1, 1],
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image2.jpg)
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/b6e9515a10957967ddee00befa6ea40.png)
 
-# Image processing(Rotation how to avoid content losing by using Opencv)
+# Image processing(How to avoid content losing during rotation by using Opencv)
 First, to rotate an image. Opencv gives us a way to do so.
 ```
 image = cv2.imread(image_path)    # read image
