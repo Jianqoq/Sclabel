@@ -44,3 +44,16 @@ Out: array([[[1, 1, 1],
 ```
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image2.jpg)
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/b6e9515a10957967ddee00befa6ea40.png)
+
+# Image processing(Rotation how to avoid content losing by using Opencv)
+First, to rotate an image. Opencv gives us a way to do so.
+```
+image = cv2.imread(image_path)    # read image
+rotate_angle = 90                 # define rotate angle
+rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
+scale_factor = 1                        # define scaling factor
+Matix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
+final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
+```
+However, by using scale_factor with 1 could cause content losing. To avoid this happens, we need to assign a correct factor value. Saddly. opencv seems doesn't provide function to do this. Thus we need to do some simple geometrical analysis.
+
