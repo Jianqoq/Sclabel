@@ -109,7 +109,7 @@ final_image = cv2.warpAffine(image, Matrix, (cols, rows))                       
 
 # How to let painted bounding box be selectable and resizable
 
-First, Use a list to store the rect and draw all the rect in paintevent. Store all the rect info into other lists everytime a new rect is created. During MousemoveEvent, track and use for ... in ... to check if the mouse is close to those area. Function can be found at functions/Draw.py and cython_pyx/Find_edge.pyx.
+First, Use a list to store the rect and draw all the rect in paintevent. Store all the rect info into other lists everytime a new rect is created. During MousemoveEvent, track and use for loop to check if the mouse is close to the edges. Function can be found at functions/Draw.py and cython_pyx/Find_edge.pyx.
 ```
 def paintEvent(self, event):
   super().paintEvent(event)
