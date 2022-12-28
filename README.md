@@ -50,11 +50,12 @@ First, to rotate an image. Opencv gives us a way to do so.
 ```
 import cv2
 
+image_path = '......'
 image = cv2.imread(image_path)    # read image
 rotate_angle = 90                 # define rotate angle
 rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
 scale_factor = 1                        # define scaling factor
-Matix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
+Matrix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
 However, it could easily cause content losing by using scale_factor with 1. To avoid this happens, we need to assign a correct factor value. Saddly. Opencv seems doesn't provide a function to solve this. Thus we need to do some simple geometrical analysis.
@@ -71,6 +72,6 @@ rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
 new_height = calculation.new_height(rotate_angle, rows, cols)     # calculate new height
 new_width = calculation.new_width(rotate_angle, rows, cols)       # calculate new width
 scale_factor = calculation.compare(new_height, new_width, rows, cols)                     # calculate scale factor
-Matix = cv2.getRotationMatrix2D(((cols-1)//2, (rows-1)//2), rotate_angle, scale_factor)   # get the transform matrix
+Matrix = cv2.getRotationMatrix2D(((cols-1)//2, (rows-1)//2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
