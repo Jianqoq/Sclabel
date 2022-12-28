@@ -266,7 +266,7 @@ class QLineEditMask(QMainWindow):
                 self.saveloc = rf'{path}\{self.basename}.json'
                 win.dockWidget.setFloating(True)
                 win.dockWidget_3.setFloating(True)
-                self.readimg(imgname, win, label, self.width, self.height)
+                self.readimg(imgname, self.win, self.label, self.width, self.height)
                 self.dir = True
                 self.singal = False
                 win.dockWidget.show()
@@ -278,7 +278,7 @@ class QLineEditMask(QMainWindow):
                     win.dockWidget.setFloating(True)
                     win.dockWidget_3.setFloating(True)
                     self.basename = os.path.splitext(os.path.basename(path))[0]
-                    self.readimg(path, win, label, self.width, self.height)
+                    self.readimg(path, self.win, self.label, self.width, self.height)
                     dir = os.path.dirname(os.path.realpath(path))
                     self.saveloc = rf'{dir}\{self.basename}.json'
                     self.storelabeling['Image path'] = path
@@ -579,6 +579,6 @@ class Dialog3(QDialog):
         font = QtGui.QFont()
         font.setPixelSize(12)
         self.dialog.buttonBox.accepted.connect(lambda: parent.go2lastsaved(parent.win, parent.basename))
-        self.dialog.buttonBox.rejected.connect(lambda: parent.loadimg(False))
+        self.dialog.buttonBox.rejected.connect(lambda: parent.loadimg(False, parent.win, parent.path, parent.label))
         self.dialog.buttonBox.button(QDialogButtonBox.Ok).setFont(font)
         self.dialog.buttonBox.button(QDialogButtonBox.Cancel).setFont(font)
