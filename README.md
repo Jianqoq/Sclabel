@@ -183,4 +183,55 @@ split_dataset_2_train_val(0.8, r'C:\Users\Public\Pictures\data\DATASET',
                           '.png', '.txt')
 ```
 # How convert json file to Yolo format
-In the functions/dataset_manipulation.py file, I provided an example to do this.
+In the functions/dataset_manipulation.py file, I provided an example to do this. Functions are 'convert' and 'convert_json2label'
+
+The first number represents the class name. The second and the third represents the center point of the bounding box relative to the image. The forth and the fifth represents the width and height of the bounding box relative to the image.
+
+Json file this software generates includes two points of bounding box, image width, image height, and class name. Thus we can do some calculation to convert them to meet Yolo requirement.
+
+![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/format.png)
+
+In python, we can easily convert json file to dictionary by using json libary.
+```
+import json
+jsonfile_path = '......'
+with open(jsonfile_path) as fp:
+    dictionary = json.load(fp)
+```
+After we get the information from the json file, we first get all the info from the dictionary.
+```
+width = int(dic['Image_width'])
+height = int(dic['Image_height'])
+points = ((item['Init Pos'], item['final Pos'], item['Name']) for item in dic['Label'])
+```
+Then, we create a dictionary contain class name and corresponding number. Later, we use a for loop to store all the calculation result to a list.
+```
+dictionary = {
+    'sdv': 1,
+    'DT': 0
+}
+lis = []
+for initpt, finalpt, name in points:
+    initpoint = initpt
+    finalpoint = finalpt
+    initx = float(initpoint[0])
+    inity = float(initpoint[1])
+    finalx = float(finalpoint[0])
+    finaly = float(finalpoint[1])
+    label_width = abs(finalx - initx)
+    label_height = abs(finaly - inity)
+    center_x = format(abs(((finalx + initx)/2)/width), '.6f')
+    center_y = format(abs(((finaly + inity) / 2) / height), '.6f')
+    relative_width = format(label_width/width, '.6f')
+    relative_height = format(label_height/height, '.6f')
+    lis.append(f'{dictionary[name]} {center_x} {center_y} {relative_width} {relative_height}\n')
+```
+Finally, we convert the list to string and then return.
+```
+return ''.join(lis)
+```
+To write the result to file. We use the 'convert' function which contains the same code written above.
+```
+with open(path, mode='w') as fp:
+    fp.write(convert(dict))
+```
