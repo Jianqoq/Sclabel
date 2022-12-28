@@ -123,3 +123,6 @@ def paintEvent(self, event):
                          self.storerectbrushcolor, self.storecirclewidth, self.storecirclebrushcolor,
                          self.storebegin, self.storecircleradius, self.storeend)
 ```
+# How to split imageset to train and validation
+
+# How to do image processing by using only one method
