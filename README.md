@@ -84,7 +84,7 @@ In this sofware, a red rectangular will be displayed and its dimension represent
 
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/b6e9515a10957967ddee00befa6ea40.png)
 # How convert json file to Yolo format
-In the functions/dataset_manipulation.py file, I provided an example to do this. Functions are 'convert' and 'convert_json2label'
+In the Dataset_manipulation_example/dataset_manipulation.py file, I provided an example to do this. Functions are 'convert' and 'convert_json2label'
 
 The first number represents the class name. The second and the third represents the center point of the bounding box relative to the image. The forth and the fifth represents the width and height of the bounding box relative to the image.
 
