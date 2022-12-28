@@ -39,6 +39,8 @@ Out: (2, 2, 3)
 ```
 If we want to crop an image with color. we will simply combine the three big columns to a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the uppper half of the image. In this sofware, a red rectangular will be displayed and its dimension represents slicing area when you are doing image cropping.
 ```
+    import numpy as np
+    
 In: array[0: 1, 0: 2]
 
 Out: array([[[1, 1, 1],
@@ -64,14 +66,15 @@ However, it could easily cause content losing by using scale_factor with 1. To a
 We first need to get the new width and new height. Then, we can calculate the scale factor for the corresponding edge. We pick the smallest factor by comparing these two value. The source code can be found at functions/calculation.py. Thus, we change some code.
 ```
 import cv2
-from functions.calculation import *
+from functions import calculation
 
+image_path = '......'
 image = cv2.imread(image_path)    # read image
 rotate_angle = 90                 # define rotate angle
 rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
-new_height = calculate.new_height(rotate_angle, rows, cols)     # calculate new height
-new_width = calculate.new_width(rotate_angle, rows, cols)       # calculate new width
-scale_factor = calculate.compare(new_height, new_width, rows, cols)                     # calculate scale factor
+new_height = calculation.new_height(rotate_angle, rows, cols)     # calculate new height
+new_width = calculation.new_width(rotate_angle, rows, cols)       # calculate new width
+scale_factor = calculation.compare(new_height, new_width, rows, cols)                     # calculate scale factor
 Matix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
