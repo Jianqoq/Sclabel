@@ -106,3 +106,20 @@ scale_factor = calculation.compare(new_height, new_width, rows, cols)           
 Matrix = cv2.getRotationMatrix2D(((cols-1)//2, (rows-1)//2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
+
+# How to let painted bounding box be selectable and resizable
+
+First, Use a list to store the rect and draw all the rect in paintevent. Store all the rect info into other lists everytime a new rect is created. During MousemoveEvent, track and use for ... in ... to check if the mouse is close to those area. Function can be found at functions/Draw.py and cython_pyx/Find_edge.pyx.
+```
+def paintEvent(self, event):
+  super().paintEvent(event)
+  qp = QPainter(self)
+  br2 = self.brush
+  pen = QPen()
+  draw.drawcurrentrect(self.pressed, self.edge, pen, qp,
+                             br2, self.width, self.rectbrushcolor,
+                             self.begin, self.end)
+  draw.drawhisrect(pen, qp, self.rectlist, self.storecolor, self.storewidth,
+                         self.storerectbrushcolor, self.storecirclewidth, self.storecirclebrushcolor,
+                         self.storebegin, self.storecircleradius, self.storeend)
+```
