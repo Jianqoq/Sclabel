@@ -17,16 +17,21 @@ Operation system: windows
 
 # How to use
 1. Screenshot.
+
 You can either press Key_Minus or click the create button. If you want to cut the image, left click after the red box shows up. Right click to undo the cropping. Press Key_Return to save the whole screenshot. Press Key_Escape to exit the manipulation if you don't want to do anything. The whole process is done by using temporary file. You would not be able to touch the file until you save it. Temp file will auto delete after you exit or confirm saving.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif.gif)
 =======================================================================================================================================================================
 2. Setting window
+
 See the notes down below. Label file name would be the same as the image file's just with different format. This location is not supported yet, currently label file will be saved in the same directory of image file.
 
 ![Image text](https://github.com/Jianqoq/Sclabel/blob/main/Image/setting.png)
 =======================================================================================================================================================================
-3. 
+3. Anntation(single file)
+
+Click annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labelling mode, a dialog box will popup after mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right hand side, you will see a list of annotation information. double click an item can select a specific box then you will only be able to resize this box. Double click again can cancel the selection. You can delete any boxes by right click item in the list. When you are done, press Key_Return or Key_Plus will exit the annotation mode and a json file will be generated in the same directory of image file.
+
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
 ```   
