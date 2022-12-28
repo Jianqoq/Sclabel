@@ -15,6 +15,10 @@ Operation system: windows
 4. Random Image augmentation.
 5. Traning and validation dataset splitting.
 
+# How to use
+1. Screenshot.
+You can either press Key_Minus or click the create button.
+
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
 ```   
