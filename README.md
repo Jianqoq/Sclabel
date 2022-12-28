@@ -18,6 +18,8 @@ Operation system: windows
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
 ```
+    import numpy as np
+    
 In: image = np.array([[[1, 1, 1],
                        [4, 4, 4]],
                       [[1, 1, 1],
@@ -48,6 +50,8 @@ Out: array([[[1, 1, 1],
 # Image processing(How to avoid content losing during rotation by using Opencv)
 First, to rotate an image. Opencv gives us a way to do so.
 ```
+import cv2
+
 image = cv2.imread(image_path)    # read image
 rotate_angle = 90                 # define rotate angle
 rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
@@ -59,6 +63,9 @@ However, it could easily cause content losing by using scale_factor with 1. To a
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image3.jpg)
 We first need to get the new width and new height. Then, we can calculate the scale factor for the corresponding edge. We pick the smallest factor by comparing these two value. The source code can be found at functions/calculation.py. Thus, we change some code.
 ```
+import cv2
+from functions.calculation import *
+
 image = cv2.imread(image_path)    # read image
 rotate_angle = 90                 # define rotate angle
 rows, cols, colors = image.shape  # get shape of image, here is 3D tensor
