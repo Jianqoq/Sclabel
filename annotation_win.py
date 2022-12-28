@@ -76,6 +76,7 @@ class QLineEditMask(QMainWindow):
         self.var1 = None
         self.var2 = None
         self.index = None
+
         self.storelabeling = {
                               'Image path': self.imgname,
                               'Image_width': 0,
@@ -89,7 +90,7 @@ class QLineEditMask(QMainWindow):
         self.action2.triggered.connect(self.rectbrush_color_picker)
         self.action3.triggered.connect(self.circle_color_picker)
         self.action4.triggered.connect(lambda: self.removeitem(self.label))
-        self.win.lineEdit_3.textEdited.connect(self.drop)
+        self.win.lineEdit_3.textEdited.connect(lambda: self.win.lineEdit_3.setText(self.path))
         self.win.pushButton_2.clicked.connect(lambda: self.showlineedit(self.win))
         self.win.pushButton_5.clicked.connect(lambda: self.showlineedit_2(self.win))
         self.win.pushButton_6.clicked.connect(lambda: self.showslider(self.win))
@@ -103,9 +104,6 @@ class QLineEditMask(QMainWindow):
                                                                            self.label.storeend))
         self.win.pushButton_7.clicked.connect(lambda: self.loadimg(True, self.win, self.path, self.label))
         self.label.signal2.connect(self.print)
-
-    def drop(self):
-        self.win.lineEdit_3.setText(self.path)
 
     def update(self):
         self.label.width = int(self.win.lineEdit.text())
