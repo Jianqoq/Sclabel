@@ -35,12 +35,12 @@ Click annotation button in the main window will popup a new window. You can drag
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/GIF2.gif)
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif3.gif)
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif4.gif)
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif5.gif)
 
 4. Anntation(Multi file)
 
 For multi image file annotation, operation is simillar to how you do for single file. You just need to drag a folder instead of an image. After enter the annotation mode, press Key_Arrowleft can go to the next image without saving annotation file, press Key_Plus can go to the next file and generate labelling file, and press Key_Return can exit the software and generate labelling file.
 
-![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif5.gif)
 
 # How does fixed size screenshot works
 Image is three dimension array(three dimension tensor). For example, we have a shape of array
