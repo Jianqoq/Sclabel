@@ -15,13 +15,14 @@ class Win(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.win = Ui_MainWindow()
-        self.win.setupUi(self)
+        win = self.win
+        win.setupUi(self)
         self.setWindowFlag(Qt.FramelessWindowHint)
-        #self.setWindowFlags(Qt.WindowStaysOnTopHint|Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         shadow(self)
         self.dpi = self.devicePixelRatioF()
         self.path = rf'C:\Users\{os.getlogin()}\Documents\Sclabel'
+        path = self.path
         self.offset = None
         self.check = None
         self.height = None
@@ -47,19 +48,18 @@ class Win(QMainWindow):
         self.labelcheckbox = None
         self.labelling = False
         self.configname = 'config.ini'
-        readdir(self, self.path, os.getlogin())
+        readdir(self, path, os.getlogin())
         self.onlyint = QIntValidator()
-        self.win.lineEdit.setValidator(self.onlyint)
-        self.win.lineEdit_2.setValidator(self.onlyint)
-        self.win.frame_3.installEventFilter(self)
-        self.win.settings.clicked.connect(self.settingwin)
-        self.win.create.clicked.connect(self.cap_opennewwin)
-        self.win.pushButton_3.clicked.connect(self.annotation)
-        self.win.checkBox.toggled.connect(lambda: self.update4(self.path, 'check', self.win.checkBox.isChecked()))
-        self.win.checkBox_2.toggled.connect(lambda: self.update3(self.path, 'labeling function',
-                                                                 self.win.checkBox_2.isChecked()))
-        self.win.lineEdit.textEdited.connect(lambda: w_update(self, 'Saving setting', 'width', self.win.lineEdit))
-        self.win.lineEdit_2.textEdited.connect(lambda: h_update(self, 'Saving setting', 'height', self.win.lineEdit_2))
+        win.lineEdit.setValidator(self.onlyint)
+        win.lineEdit_2.setValidator(self.onlyint)
+        win.frame_3.installEventFilter(self)
+        win.settings.clicked.connect(self.settingwin)
+        win.create.clicked.connect(self.cap_opennewwin)
+        win.pushButton_3.clicked.connect(self.annotation)
+        win.checkBox.toggled.connect(lambda: self.update4(path, 'check', win.checkBox.isChecked()))
+        win.checkBox_2.toggled.connect(lambda: self.update3(path, 'labeling function', win.checkBox_2.isChecked()))
+        win.lineEdit.textEdited.connect(lambda: w_update(self, 'Saving setting', 'width', win.lineEdit))
+        win.lineEdit_2.textEdited.connect(lambda: h_update(self, 'Saving setting', 'height', win.lineEdit_2))
         self.init_var()
         self.move(self.posx, self.posy)
         self.compression = int(round(100/self.slidervalue, 0))
@@ -171,14 +171,15 @@ class Win(QMainWindow):
         self.cap_opennewwin() if event.key() == 39 else False
 
     def eventFilter(self, source, event):
-        if source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseMove and QtCore.Qt.LeftButton and self.offset:
+        win = self.win
+        if source == win.frame_3 and event.type() == QtCore.QEvent.MouseMove and QtCore.Qt.LeftButton and self.offset:
             self.pos2 = self.pos() + event.globalPos() - self.offset
             self.move(self.pos2)
             self.offset = event.globalPos()
             event.accept()
-        elif source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseButtonPress and QtCore.Qt.LeftButton:
+        elif source == win.frame_3 and event.type() == QtCore.QEvent.MouseButtonPress and QtCore.Qt.LeftButton:
             self.offset = event.globalPos()
-        elif source == self.win.frame_3 and event.type() == QtCore.QEvent.MouseButtonRelease and QtCore.Qt.LeftButton:
+        elif source == win.frame_3 and event.type() == QtCore.QEvent.MouseButtonRelease and QtCore.Qt.LeftButton:
             lastpos(self.path, self.pos2) if self.pos2 is not None else False
 
         return super().eventFilter(source, event)
