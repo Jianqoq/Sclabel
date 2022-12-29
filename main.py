@@ -161,11 +161,10 @@ class Win(QMainWindow):
         w = MoniterDev[0][2][2]
         h = MoniterDev[0][2][3]
         temploc = rf'{name}/image.jpg'
-        file = self.readpath + '/' + self.name + '.jpg'
         if self.win.checkBox.isChecked():
             self.hide()
         window_capture(temploc, 0, 0, w, h)
-        self.open_window(file, temploc, temp, self.slidervalue)
+        self.open_window(temploc, temp, self.slidervalue)
 
     def keyPressEvent(self, event):
         self.cap_opennewwin() if event.key() == 39 else False
@@ -184,7 +183,7 @@ class Win(QMainWindow):
 
         return super().eventFilter(source, event)
 
-    def open_window(self, file, temploc, temp, quality):
+    def open_window(self, temploc, temp, quality):
         factor = self.dpi
         image = QPixmap(temploc)
         image.setDevicePixelRatio(factor)
@@ -197,7 +196,7 @@ class Win(QMainWindow):
         newx = int(x // factor)
         newy = int(y // factor)
         win_instance = self if self.win.checkBox.isChecked() else None
-        self.label = MyLabel2(file, temploc, temp, x, y, newx, newy, win_instance, quality, wind)
+        self.label = MyLabel2(temploc, temp, x, y, newx, newy, win_instance, quality, wind)
         label = self.label
         label.setPixmap(image)
         self.updateidct()
