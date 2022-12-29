@@ -74,12 +74,14 @@ class Win(QMainWindow):
 
     def annotation(self):
         self.window2 = QLineEditMask(geo.width(), geo.height(), self)
-        self.window2.show()
-        point = self.win.frame.mapToGlobal(self.win.frame.pos())
-        x = point.x() + self.win.frame.width()//2 - self.window2.geometry().width()//2
-        y = point.y() + self.win.frame.height()//2 - self.window2.geometry().height()//2 - 60
-        self.window2.move(x, y)
-        self.win.pushButton_3.setEnabled(False)
+        window2 = self.window2
+        win = self.win
+        window2.show()
+        point = win.frame.mapToGlobal(win.frame.pos())
+        x = point.x() + win.frame.width()//2 - window2.geometry().width()//2
+        y = point.y() + win.frame.height()//2 - window2.geometry().height()//2 - 60
+        window2.move(x, y)
+        win.pushButton_3.setEnabled(False)
         self.labelling = True
 
     def directannotate(self, path):
@@ -145,14 +147,16 @@ class Win(QMainWindow):
             self.height = height
 
     def settingwin(self):
-        pos = self.pos() + self.win.frame_2.pos()
-        self.settingw = SettingWindow(pos, self.win.frame_2.size(), self)
+        frame_2 = self.win.frame_2
+        pos = self.pos() + frame_2.pos()
+        self.settingw = SettingWindow(pos, frame_2.size(), self)
         self.settingw.imgdict = self.imgdict
         self.settingw.show()
 
     def cap_opennewwin(self):
         self.temp = tempfile.TemporaryDirectory()
-        name = self.temp.name
+        temp = self.temp
+        name = temp.name
         MoniterDev = win32api.EnumDisplayMonitors(None, None)
         w = MoniterDev[0][2][2]
         h = MoniterDev[0][2][3]
@@ -161,7 +165,7 @@ class Win(QMainWindow):
         if self.win.checkBox.isChecked():
             self.hide()
         window_capture(temploc, 0, 0, w, h)
-        self.open_window(file, temploc, self.temp, self.slidervalue)
+        self.open_window(file, temploc, temp, self.slidervalue)
 
     def keyPressEvent(self, event):
         self.cap_opennewwin() if event.key() == 39 else False
@@ -186,20 +190,22 @@ class Win(QMainWindow):
         x = image.width()
         y = image.height()
         self.window = OpenWindow()
-        self.window.filename = temploc
-        self.window.new_win.setupUi(self.window)
+        wind = self.window
+        wind.filename = temploc
+        wind.new_win.setupUi(wind)
         newx = int(x // factor)
         newy = int(y // factor)
         win_instance = self if self.win.checkBox.isChecked() else None
-        self.label = MyLabel2(file, temploc, temp, x, y, newx, newy, win_instance, quality, self.window)
-        self.label.setPixmap(image)
+        self.label = MyLabel2(file, temploc, temp, x, y, newx, newy, win_instance, quality, wind)
+        label = self.label
+        label.setPixmap(image)
         self.updateidct()
-        self.label.imagedict = self.imgdict
-        self.label.setFocusPolicy(Qt.StrongFocus)
-        self.label.resize(newx, newy)
-        self.label.setMouseTracking(True)
-        self.window.setGeometry(0, 0, x, y)
-        self.window.show()
+        label.imagedict = self.imgdict
+        label.setFocusPolicy(Qt.StrongFocus)
+        label.resize(newx, newy)
+        label.setMouseTracking(True)
+        wind.setGeometry(0, 0, x, y)
+        wind.show()
 
     def updateidct(self):
         self.compression = int(round(100/self.slidervalue, 0))
