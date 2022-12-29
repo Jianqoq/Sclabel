@@ -106,7 +106,7 @@ def get_validname(savefiledir, name, count, form):
     return save
 
 # randomly do image augmentation and display progressbar
-def generate_augmentfile(self, *args):
+def generate_augmentfile(*args):
     images, filedir, progress, count, progressbar, savefiledir, name, format, display, quality = args
     if not path.exists(savefiledir):
         makedirs(savefiledir)
@@ -115,6 +115,7 @@ def generate_augmentfile(self, *args):
         progress += 1
         count += 1
         progressbar.setValue(progress)
+        progressbar.update()
         save = get_validname(savefiledir, name, count, format)
-        foo_list = [self.translation, self.rotation90, self.rotation, self.rotation180]
+        foo_list = [translation, rotation90, rotation, rotation180]
         random.choice(foo_list)(loc, save, display, format[0], quality)
