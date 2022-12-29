@@ -28,6 +28,10 @@ See the notes down below. Label file name would be the same as the image file's 
 
 ![Image text](https://github.com/Jianqoq/Sclabel/blob/main/Image/setting.png)
 
+3. Random augmentation
+
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif7.gif)
+
 4. Annotation(single file)
 
 Click annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labelling mode, a dialog box will popup after mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right hand side, you will see a list of annotation information.
@@ -43,9 +47,7 @@ When you are done, press Key_Return or Key_Plus will exit the annotation mode an
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif5.gif)
 
-3. Random augmentation
-
-4. Annotation(Multi file)
+5. Annotation(Multi file)
 
 For multi image file annotation, operation is simillar to how you do for single file. You just need to drag a folder instead of an image. If you want to continue labelling, simply click confirm directly and then click OK button. Click cancel if you don't want and software will read the image you provided.
 
