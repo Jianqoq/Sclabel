@@ -2,16 +2,15 @@ from PyQt5.QtCore import QPointF, QRectF
 from PyQt5.QtGui import QBrush
 
 
+
 def store_data(beginlist: list, endlist: list, rectlist: list, begin: QPointF, end: QPointF, storecolor: list,
-               color: QBrush, storewidth: list, width: int, storecirclewidth: list, circlewidth: int,
-               storecirclebrushcolor: list, circlebrushcolor: QBrush, storebrushcolor: list, brushcolor: QBrush,
+               color: QBrush, storewidth: list, width: int, storecirclebrushcolor: list, circlebrushcolor: QBrush, storebrushcolor: list, brushcolor: QBrush,
                storecircleradius: list, radius: int, newbegin, newend):
     beginlist.append(begin)
     endlist.append(end)
     rectlist.append(QRectF(begin, end))
     storecolor.append(color)
     storewidth.append(width)
-    storecirclewidth.append(circlewidth)
     storecirclebrushcolor.append(circlebrushcolor)
     storebrushcolor.append(brushcolor)
     storecircleradius.append(radius)
@@ -27,7 +26,7 @@ def get_points(point: QPointF, index: int, endlist: list, pos: QPointF):
         return vertdistance, hordistance, newpoint, radius
 
 
-def drawhisrect(pen, qp, rectlist, storecolor, storewidth,storerectbrushcolor, storecirclewidth, storecirclebrushcolor,
+def drawhisrect(pen, qp, rectlist, storecolor, storewidth, storerectbrushcolor, storecirclebrushcolor,
              storebegin, storecircleradius,storeend):
 
     if rectlist:
@@ -39,13 +38,13 @@ def drawhisrect(pen, qp, rectlist, storecolor, storewidth,storerectbrushcolor, s
                 qp.setBrush(storerectbrushcolor[index])
                 qp.drawRect(rect)
                 pen.setBrush(storecolor[index])
-                pen.setWidth(storecirclewidth[index])
+                pen.setWidth(storewidth[index])
                 qp.setBrush(storecirclebrushcolor[index])
                 qp.setPen(pen)
                 qp.drawEllipse(storebegin[index], storecircleradius[index], storecircleradius[index])
                 pen.setBrush(storecolor[index])
                 qp.setBrush(storecirclebrushcolor[index])
-                pen.setWidth(storecirclewidth[index])
+                pen.setWidth(storewidth[index])
                 qp.setPen(pen)
                 qp.drawEllipse(storeend[index], storecircleradius[index], storecircleradius[index])
     else:
