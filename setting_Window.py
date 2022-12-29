@@ -42,54 +42,30 @@ class SettingWindow(QWidget):
         self.win.horizontalSlider.valueChanged.connect(self.updateslider)
         self.win.comboBox_2.currentIndexChanged.connect(self.enableapply)
         self.imgdict = None
-        self._winx = int(main_win_pos.x() + size.width()//2 - self.size().width()//2)
-        self._winy = int(main_win_pos.y() + size.height()//2 - self.size().height()//2)
+        self.winx = int(main_win_pos.x() + size.width()//2 - self.size().width()//2)
+        self.winy = int(main_win_pos.y() + size.height()//2 - self.size().height()//2)
         self.name = 'image'
         self.window_pos()
-        self.move(self._winx, self._winy)
-
-    @property
-    def winx(self):
-        return self._winx
-
-    @winx.setter
-    def winx(self, args):
-        arg1, arg2, arg3 = args
-        if isinstance(arg1, QPoint) and isinstance(arg2, QSize) and isinstance(arg3, float):
-            self._winx = int(self.size().width()//args - arg2.width() + arg1.x())
-        else:
-            raise ValueError
-
-    @property
-    def winy(self):
-        return self._winy
-
-    @winy.setter
-    def winy(self, args):
-        arg1, arg2, arg3 = args
-        if isinstance(arg1, QPoint) and isinstance(arg2, QSize) and isinstance(arg3, float):
-            self._winy = int(self.size().height() // arg3 - arg2.height() + arg1.y())
-        else:
-            raise ValueError
+        self.move(self.winx, self.winy)
 
     def window_pos(self):
-        if self._winx < 0 and self._winy < 0:
-            self._winx = 0
-            self._winy = 0
-        if self._winx < 0:
-            self._winx = 0
-        elif self._winy < 0:
-            self._winy = 0
+        if self.winx < 0 and self.winy < 0:
+            self.winx = 0
+            self.winy = 0
+        if self.winx < 0:
+            self.winx = 0
+        elif self.winy < 0:
+            self.winy = 0
 
     def openfolder(self, num):
         if num == 8:
-            open_dir(self.win.lineEdit.text())
+            open_dir(self.win.lineEdit.text(), True)
         elif num == 9:
-            open_dir(self.win.lineEdit_6.text())
+            open_dir(self.win.lineEdit_6.text(), True)
         elif num == 10:
-            open_dir(self.win.lineEdit_4.text())
+            open_dir(self.win.lineEdit_4.text(), True)
         elif num == 12:
-            open_dir(self.win.lineEdit_7.text())
+            open_dir(self.win.lineEdit_7.text(), True)
 
     def threading1(self):
         Thread(target=self.dataaugment).start()
