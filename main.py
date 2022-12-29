@@ -5,6 +5,8 @@ from functions.graphic_effect import *
 from functions.file_manipulation import *
 from cap_pic_show import *
 import sys
+import ctypes
+from PyQt5.QtWidgets import QApplication
 
 
 class Win(QMainWindow):
@@ -82,11 +84,19 @@ class Win(QMainWindow):
 
     def directannotate(self, path):
         self.window2 = QLineEditMask(geo.width(), geo.height(), self)
+        window = self.window2
         saveloc = get_label_filename(path)
-        self.window2.storelabeling['Image path'] = path
-        self.window2.saveloc = saveloc
-        self.window2.show()
-        self.window2.readimg(path)
+        window.storelabeling['Image path'] = path
+        window.saveloc = saveloc
+        window.win.dockWidget.show()
+        window.win.dockWidget_3.show()
+        window.readimg(path, window.win, window.label, geo.width(), geo.height())
+        window.dir = False
+        window.singal = True
+        window.win.dockWidget.setFloating(True)
+        window.win.dockWidget_3.setFloating(True)
+        window.label.show()
+        window.hide()
 
     def init_var(self):
         config = configparser.ConfigParser()
