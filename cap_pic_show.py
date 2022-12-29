@@ -8,12 +8,11 @@ from functions.Image_process import *
 
 
 class MyLabel2(QLabel):
-    def __init__(self, filename, temploc, temp, img_width,
+    def __init__(self, temploc, temp, img_width,
                  img_height, half_width, half_height, main_win,
                  quality, parent=None):
         super(MyLabel2, self).__init__(parent=parent)
         self.mainwindow = main_win
-
         self.factor1 =main_win.dpi
         self.name2 = main_win.name
         self.save = main_win.readpath
@@ -33,7 +32,6 @@ class MyLabel2(QLabel):
         self.half_height = half_height
         self.flag = False
         self.quality = quality
-        self.filename = filename
         self.count = 0
         self.check = False
         self.nparray = None
