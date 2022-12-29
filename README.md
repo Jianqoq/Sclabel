@@ -8,7 +8,7 @@ Interpretor: Python 3.10 or above
 
 Operation system: windows
 
-# Fetures
+# Features
 1. Take full or fixed size screenshot.
 2. Image processing. Flip, mirror, rotation and shiftting.
 3. Image annotation. Support rectangular shape so far.
