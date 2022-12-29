@@ -1,39 +1,39 @@
-from PyQt5.QtCore import QPoint, QRect
+from PyQt5.QtCore import QPointF, QRectF
 from PyQt5.QtGui import QBrush
 import cython
+from time import time
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-def store_data(list beginlist, list endlist, list rectlist, begin, end, list storecolor,
-               color, list storewidth, int width, list storecirclewidth, int circlewidth,
-               list storecirclebrushcolor, circlebrushcolor, list storebrushcolor, brushcolor,
-               list storecircleradius, int radius):
+cpdef void store_data(list beginlist, list endlist, list rectlist, begin, end, list storecolor,
+               color, list storewidth, int width, list storecirclebrushcolor, circlebrushcolor,
+                list storebrushcolor, brushcolor, list storecircleradius, float radius, newbegin, newend):
     beginlist.append(begin)
     endlist.append(end)
-    rectlist.append(QRect(begin, end))
+    rectlist.append(QRectF(begin, end))
     storecolor.append(color)
     storewidth.append(width)
-    storecirclewidth.append(circlewidth)
     storecirclebrushcolor.append(circlebrushcolor)
     storebrushcolor.append(brushcolor)
     storecircleradius.append(radius)
+    newend.append(end*1.5)
+    newbegin.append(begin*1.5)
 
 
 def get_points(point, int index, list endlist, pos):
-        cdef int vertdistance = point.y() - endlist[index].y()
-        cdef int hordistance = point.x() - endlist[index].x()
+        cdef float vertdistance = point.y() - endlist[index].y()
+        cdef float hordistance = point.x() - endlist[index].x()
         newpoint = point - pos
-        cdef int radius = QPoint.manhattanLength(pos - point)
+        cdef float radius = QPointF.manhattanLength(pos - point)
         return vertdistance, hordistance, newpoint, radius
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-def drawhisrect(pen, qp, list rectlist, list storecolor, list storewidth, list storerectbrushcolor, list storecirclewidth,
+cpdef void drawhisrect(pen, qp, list rectlist, list storecolor, list storewidth, list storerectbrushcolor,
                 list storecirclebrushcolor, list storebegin, list storecircleradius, list storeend):
 
-    cdef int length = len(rectlist)
     cdef int index, width, radius
-    if length > 0:
+    if rectlist:
         for index, rect in enumerate(rectlist):
             if rect is not None:
                 color = storecolor[index]
@@ -44,7 +44,7 @@ def drawhisrect(pen, qp, list rectlist, list storecolor, list storewidth, list s
                 color = storerectbrushcolor[index]
                 qp.setBrush(color)
                 qp.drawRect(rect)
-                width = storecirclewidth[index]
+                width = storewidth[index]
                 pen.setWidth(width)
                 color = storecirclebrushcolor[index]
                 qp.setBrush(color)
@@ -56,22 +56,23 @@ def drawhisrect(pen, qp, list rectlist, list storecolor, list storewidth, list s
                 pen.setBrush(color)
                 brushcolor = storecirclebrushcolor[index]
                 qp.setBrush(brushcolor)
-                width = storecirclewidth[index]
+                width = storewidth[index]
                 pen.setWidth(width)
                 qp.setPen(pen)
                 endpoint = storeend[index]
                 qp.drawEllipse(endpoint, radius, radius)
+        return
     else:
         return
 
 
-def drawcurrentrect(bint pressed, bint edge, pen, qp, br2, int width, rectbrushcolor, begin, end):
+cpdef void drawcurrentrect(bint pressed, bint edge, pen, qp, br2, int width, rectbrushcolor, begin, end):
     if pressed and not edge:
         pen.setBrush(br2)
         pen.setWidth(width)
         qp.setPen(pen)
         qp.setBrush(rectbrushcolor)
-        qp.drawRect(QRect(begin, end))
+        qp.drawRect(QRectF(begin, end))
         return
     else:
         return
