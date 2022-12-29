@@ -2,7 +2,7 @@ import configparser
 from PyQt5.QtWidgets import QLabel, QMainWindow
 from PyQt5.QtCore import Qt, QRect, QPoint
 from PyQt5.QtGui import QPixmap, QPainter, QPen
-from functions.calculation import *
+from cython_libary import calculation
 from UI.cap_pic_ui import *
 from functions.Image_process import *
 
@@ -13,14 +13,15 @@ class MyLabel2(QLabel):
                  quality, parent=None):
         super(MyLabel2, self).__init__(parent=parent)
         self.mainwindow = main_win
-        self.factor1 = self.mainwindow.dpi
-        self.name2 = self.mainwindow.name
-        self.save = self.mainwindow.readpath
+
+        self.factor1 =main_win.dpi
+        self.name2 = main_win.name
+        self.save = main_win.readpath
         self.x0 = 0
         self.y0 = 0
-        self.x1 = int(self.mainwindow.width)
-        self.y1 = int(self.mainwindow.height)
-        self.path = self.mainwindow.path
+        self.x1 = int(main_win.width)
+        self.y1 = int(main_win.height)
+        self.path = main_win.path
         self.pixmap = None
         self.name = None
         self.tempfile = None
@@ -109,16 +110,18 @@ class MyLabel2(QLabel):
 
     def mouseMoveEvent(self, event):
         if not self.check:
-            self.x0 = event.globalPos().x()
-            self.y0 = event.globalPos().y()
-            x, y = label2_event_pos(self.x1, self.y1, self.factor1)
-            self.rect = QRect(self.x0, self.y0, x, y)
+            x0 = event.globalPos().x()
+            y0 = event.globalPos().y()
+            x, y = calculation.label2_event_pos(self.x1, self.y1, self.factor1)
+            self.rect = QRect(x0, y0, x, y)
             self.update()
+            self.x0 = x0
+            self.y0 = y0
 
     def paintEvent(self, event):
         super().paintEvent(event)
         painter = QPainter(self)
-        painter.setPen(QPen(Qt.red, 1, Qt.SolidLine))
+        painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
         painter.drawRect(self.rect)
 
     def getformat(self):
@@ -146,7 +149,6 @@ class MyLabel2(QLabel):
 class OpenWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
         self.win1 = QMainWindow()
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.new_win = New_Ui_MainWindow()
