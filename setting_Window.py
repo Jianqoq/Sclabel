@@ -91,51 +91,55 @@ class SettingWindow(QWidget):
 
     # update config file and update MainWindow variables without quitting the whole software
     def confirm(self):
-        self.name = self.win.lineEdit_2.text()
-        self.dir = self.win.lineEdit.text()
-        self.dir2 = self.win.lineEdit_4.text()
-        self.name2 = self.win.lineEdit_3.text()
-        self.aug_load = self.win.lineEdit_6.text()
-        self.format = str(self.win.comboBox_2.currentIndex())
-        self.labellication = self.win.lineEdit_7.text()
-        self.mainwin.slidervalue = self.win.horizontalSlider.value()
-        self.mainwin.imageformat = self.format
-        self.mainwin.readpath = self.dir
-        self.mainwin.name = self.name
-        self.mainwin.save = self.dir2
-        self.mainwin.Aug_name = self.name2
-        self.mainwin.Aug_load = self.aug_load
+        win = self.win
+        mainwin = self.mainwin
+        self.name = win.lineEdit_2.text()
+        self.dir = win.lineEdit.text()
+        self.dir2 = win.lineEdit_4.text()
+        self.name2 = win.lineEdit_3.text()
+        self.aug_load = win.lineEdit_6.text()
+        self.format = str(win.comboBox_2.currentIndex())
+        self.labellication = win.lineEdit_7.text()
+        mainwin.slidervalue = win.horizontalSlider.value()
+        mainwin.imageformat = self.format
+        mainwin.readpath = self.dir
+        mainwin.name = self.name
+        mainwin.save = self.dir2
+        mainwin.Aug_name = self.name2
+        mainwin.Aug_load = self.aug_load
 
         if not self.name or not self.dir or not self.dir2 or not self.name2 or not self.aug_load:
             Messagebox('Input name can\'t be empty')
         else:
             self.updatesettings(self.dir, self.dir2, self.name, self.name2, self.aug_load, self.format,
                                 self.labellication, self.configname)
-            self.win.pushButton_2.setEnabled(False)
+            win.pushButton_2.setEnabled(False)
 
     def updateslider(self):
         value = self.win.horizontalSlider.value()
         self.win.label_9.setText(str(value))
 
     def updatesettings(self, dir, dir2, name, name2, aug_load, suffix, dir3, configname):
-        updatefilename(self.path, dir, 'Saving setting', 'Location', configname)
-        updatefilename(self.path, dir2, 'Saving setting', 'Save Location', configname)
-        updatefilename(self.path, name, 'Saving setting', 'Image name', configname)
-        updatefilename(self.path, name2, 'Saving setting', 'Augment Image name', configname)
-        updatefilename(self.path, aug_load, 'Saving setting', 'augment data load', configname)
-        updatefilename(self.path, str(self.win.horizontalSlider.value()), 'Saving setting', 'Quality', configname)
-        updatefilename(self.path, suffix, 'Saving setting', 'Image Format', configname)
-        updatefilename(self.path, dir3, 'Saving setting', 'Label Location', configname)
+        path = self.path
+        updatefilename(path, dir, 'Saving setting', 'Location', configname)
+        updatefilename(path, dir2, 'Saving setting', 'Save Location', configname)
+        updatefilename(path, name, 'Saving setting', 'Image name', configname)
+        updatefilename(path, name2, 'Saving setting', 'Augment Image name', configname)
+        updatefilename(path, aug_load, 'Saving setting', 'augment data load', configname)
+        updatefilename(path, str(self.win.horizontalSlider.value()), 'Saving setting', 'Quality', configname)
+        updatefilename(path, suffix, 'Saving setting', 'Image Format', configname)
+        updatefilename(path, dir3, 'Saving setting', 'Label Location', configname)
 
     def init_text(self):
+        win = self.win
         config = configparser.ConfigParser()
         config.read(rf'{self.path}\{self.configname}')
-        self.win.lineEdit.setText(config.items('Saving setting')[0][1])
-        self.win.lineEdit_2.setText(config.items('Saving setting')[1][1])
-        self.win.lineEdit_4.setText(config.items('Saving setting')[2][1])
-        self.win.lineEdit_3.setText(config.items('Saving setting')[3][1])
-        self.win.lineEdit_6.setText(config.items('Saving setting')[4][1])
-        self.win.label_9.setText(config.items('Saving setting')[10][1])
-        self.win.horizontalSlider.setValue(int(config.items('Saving setting')[10][1]))
-        self.win.comboBox_2.setCurrentIndex(int(config.items('Saving setting')[11][1]))
-        self.win.lineEdit_7.setText(config.items('Saving setting')[12][1])
+        win.lineEdit.setText(config.items('Saving setting')[0][1])
+        win.lineEdit_2.setText(config.items('Saving setting')[1][1])
+        win.lineEdit_4.setText(config.items('Saving setting')[2][1])
+        win.lineEdit_3.setText(config.items('Saving setting')[3][1])
+        win.lineEdit_6.setText(config.items('Saving setting')[4][1])
+        win.label_9.setText(config.items('Saving setting')[10][1])
+        win.horizontalSlider.setValue(int(config.items('Saving setting')[10][1]))
+        win.comboBox_2.setCurrentIndex(int(config.items('Saving setting')[11][1]))
+        win.lineEdit_7.setText(config.items('Saving setting')[12][1])
