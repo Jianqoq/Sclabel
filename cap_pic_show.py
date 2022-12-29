@@ -86,9 +86,9 @@ class MyLabel2(QLabel):
         if event.key() == Qt.Key_Return and not self.pressed:
             new_path = self.checkrepeatname(self.save, self.name2, self.imagedict[self.index][1])
             savefullimg(self.temploc, new_path, self.imagedict[self.index], self.imagedict[self.index][2])
-            self.dolabelling(new_path)
+            self.dolabelling(new_path, self.mainwindow)
 
-        elif event.key() == Qt.Key_E and self.nparray is not None:
+        elif event.key() == Qt.Key_Return and self.nparray is not None:
             self.tempfile.close()
             os.unlink(self.name)
             self.temp.cleanup()
@@ -98,7 +98,7 @@ class MyLabel2(QLabel):
             cv2.imwrite(path, self.nparray, [self.imagedict[self.index][0], self.imagedict[self.index][2]])
             if self.mainwindow is None:
                 self.parent().close()
-            self.dolabelling(path)
+            self.dolabelling(path, self.mainwindow)
         elif event.key() == Qt.Key_Escape and not self.toggle:
             if self.check:
                 self.tempfile.close()
@@ -133,14 +133,14 @@ class MyLabel2(QLabel):
             file = f'{dir}/{name}{str(self.count)}{suffix}'
         return file
 
-    def dolabelling(self, path):
-        if self.mainwindow.win.checkBox_2.isChecked():
+    def dolabelling(self, path, mainwindow):
+        if mainwindow.win.checkBox_2.isChecked():
             self.parent().close()
-            self.mainwindow.directannotate(path)
-            self.mainwindow.labelling = True
+            mainwindow.directannotate(path)
+            mainwindow.labelling = True
         else:
             self.parent().close()
-            self.mainwindow.show()
+            mainwindow.show()
 
 
 class OpenWindow(QMainWindow):
