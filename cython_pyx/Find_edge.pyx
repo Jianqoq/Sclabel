@@ -6,7 +6,7 @@ import cython
 @cython.boundscheck(False)
 cpdef bint checklefttop(object self, int x, int y, int radius2, list storebegin, list storeend):
 
-    cdef short int vertdistance, hordistance, index, xdis, ydis, xdis2, ydis2, ydis3, ydis4, x_diff, y_diff
+    cdef short int vertdistance, hordistance, index, x_diff, y_diff, new_y, new_x
     cdef float radius, store_y, store_x
 
     if storebegin:
@@ -17,83 +17,58 @@ cpdef bint checklefttop(object self, int x, int y, int radius2, list storebegin,
                     y_diff = abs(point.y() - y)
                     store_y = storeend[index].y()
                     store_x = storeend[index].x()
+                    new_y = new_y
+                    new_x = new_x
                     if radius <= radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
                         self.tlcorner = True
                         self.brcorner = False
-                        self.leftedge = False
-                        self.topedge = False
-                        self.rightedge = False
-                        self.bottomedge = False
+                        toggle(self, '5')
                         return True
-                    elif newpoint.x() <= radius2 and newpoint.y() <= radius2 and vertdistance < 0 and hordistance < 0:
+                    elif new_x <= radius2 and new_y <= radius2 and vertdistance < 0 and hordistance < 0:
                         if x_diff <= 5 and y < store_y-10:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.leftedge = True
-                            self.topedge = False
-                            self.rightedge = False
-                            self.bottomedge = False
+                            toggle(self, '4')
                             return True
                         elif y_diff <= 5 and x < store_x-radius2:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.topedge = True
-                            self.leftedge = False
-                            self.bottomedge = False
-                            self.rightedge = False
+                            toggle(self, '3')
                             return True
-                    elif newpoint.x() <= radius2 and newpoint.y() > -radius2 and vertdistance >= 0 and hordistance < 0:
+                    elif new_x <= radius2 and new_y > -radius2 and vertdistance >= 0 and hordistance < 0:
                         if x_diff <= 5 and y > store_y+radius2:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.leftedge = True
-                            self.topedge = False
-                            self.rightedge = False
-                            self.bottomedge = False
+                            toggle(self, '4')
                             return True
                         elif y_diff <= 5 and x < store_x-radius2:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.topedge = True
-                            self.leftedge = False
-                            self.bottomedge = False
-                            self.rightedge = False
+                            toggle(self, '3')
                             return True
-                    elif newpoint.x() > -radius2 and newpoint.y() <= radius2 and vertdistance < 0 and hordistance >= 0:
+                    elif new_x > -radius2 and new_y <= radius2 and vertdistance < 0 and hordistance >= 0:
                         if x_diff <= 5 and y < store_y-radius2:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.leftedge = True
-                            self.topedge = False
-                            self.rightedge = False
-                            self.bottomedge = False
+                            toggle(self, '4')
                             return True
                         elif y_diff <= 5 and x > store_x+radius2:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.topedge = True
-                            self.leftedge = False
-                            self.bottomedge = False
-                            self.rightedge = False
+                            toggle(self, '3')
                             return True
-                    elif newpoint.x() > -radius2 and newpoint.y() > -radius2 and vertdistance >= 0 and hordistance >= 0:
+                    elif new_x > -radius2 and new_y > -radius2 and vertdistance >= 0 and hordistance >= 0:
                         if x_diff <= 5 and y > store_y+radius2:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.leftedge = True
-                            self.topedge = False
-                            self.rightedge = False
-                            self.bottomedge = False
+                            toggle(self, '4')
                             return True
                         elif y_diff <= 5 and x > store_x+radius2:
                             self.prev = self.currentboxx
                             self.currentboxx = index
-                            self.topedge = True
-                            self.leftedge = False
-                            self.rightedge = False
-                            self.bottomedge = False
+                            toggle(self, '3')
                             return True
             return False
 
@@ -101,7 +76,7 @@ cpdef bint checklefttop(object self, int x, int y, int radius2, list storebegin,
 @cython.boundscheck(False)
 cpdef bint checkrightbottom(object self, int x, int y, int radius2, list storebegin, list storeend):
 
-    cdef short int vertdistance, hordistance, index, x_diff, y_diff
+    cdef short int vertdistance, hordistance, index, x_diff, y_diff, new_y, new_x
     cdef float radius
     cdef float store_y, store_x
 
@@ -113,84 +88,73 @@ cpdef bint checkrightbottom(object self, int x, int y, int radius2, list storebe
                 y_diff = abs(point.y() - y)
                 store_y = storebegin[index].y()
                 store_x = storebegin[index].x()
+                new_y = newpoint.y()
+                new_x = newpoint.x()
                 if radius <= radius2:
                     self.prev = self.currentboxx
                     self.currentboxx = index
                     self.brcorner = True
                     self.tlcorner = False
-                    self.bottomedge = False
-                    self.rightedge = False
-                    self.leftedge = False
-                    self.topedge = False
+                    toggle(self, '5')
                     return True
-                elif newpoint.x() >= -radius2 and newpoint.y() >= -radius2 and vertdistance > 0 and hordistance >= 0:
+                elif new_x >= -radius2 and new_y >= -radius2 and vertdistance > 0 and hordistance >= 0:
                     if x_diff <= 5 and y >= store_y - radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.rightedge = True
-                        self.bottomedge = False
-                        self.leftedge = False
-                        self.topedge = False
+                        toggle(self, '2')
                         return True
                     elif y_diff <= 5 and x >= store_x - radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.bottomedge = True
-                        self.rightedge = False
-                        self.topedge = False
-                        self.leftedge = False
+                        toggle(self, '1')
                         return True
-                elif newpoint.x() >= -radius2 and newpoint.y() < radius2 and vertdistance <= 0 and hordistance >= 0:
+                elif new_x >= -radius2 and new_y < radius2 and vertdistance <= 0 and hordistance >= 0:
                     if x_diff <= 5 and y <= store_y + radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.rightedge = True
-                        self.bottomedge = False
-                        self.leftedge = False
-                        self.topedge = False
+                        toggle(self, '2')
                         return True
                     elif y_diff <= 5 and x >= store_x - 10:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.bottomedge = True
-                        self.rightedge = False
-                        self.topedge = False
-                        self.leftedge = False
+                        toggle(self, '1')
                         return True
-                elif newpoint.x() < 10 and newpoint.y() >= -radius2 and vertdistance > 0 and hordistance < 0:
+                elif new_x < 10 and new_y >= -radius2 and vertdistance > 0 and hordistance < 0:
                     if x_diff <= 5 and y >= store_y - radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.rightedge = True
-                        self.bottomedge = False
-                        self.leftedge = False
-                        self.topedge = False
+                        toggle(self, '2')
                         return True
                     elif y_diff <= 5 and x <= store_x + radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.bottomedge = True
-                        self.rightedge = False
-                        self.topedge = False
-                        self.leftedge = False
+                        toggle(self, '1')
                         return True
-                elif newpoint.x() < radius2 and newpoint.y() < radius2 and vertdistance <= 0 and hordistance < 0:
+                elif new_x < radius2 and new_y < radius2 and vertdistance <= 0 and hordistance < 0:
                     if x_diff <= 5 and y <= store_y + radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.rightedge = True
-                        self.bottomedge = False
-                        self.leftedge = False
-                        self.topedge = False
+                        toggle(self, '2')
                         return True
                     elif y_diff <= 5 and x <= store_x - radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
-                        self.bottomedge = True
-                        self.rightedge = False
-                        self.topedge = False
-                        self.leftedge = False
+                        toggle(self, '1')
                         return True
 
     return False
 
+cpdef void toggle(object self, str number):
+    cdef dict dictionary = {
+    '1': False,
+    '2': False,
+    '3': False,
+    '4': False,
+    '5': False
+    }
+    dictionary[number] = True
+    self.bottomedge = dictionary['1']
+    self.rightedge = dictionary['2']
+    self.topedge = dictionary['3']
+    self.leftedge = dictionary['4']
+    return
