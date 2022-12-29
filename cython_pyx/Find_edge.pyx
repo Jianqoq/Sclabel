@@ -17,8 +17,8 @@ cpdef bint checklefttop(object self, int x, int y, int radius2, list storebegin,
                     y_diff = abs(point.y() - y)
                     store_y = storeend[index].y()
                     store_x = storeend[index].x()
-                    new_y = new_y
-                    new_x = new_x
+                    new_y = newpoint.y()
+                    new_x = newpoint.x()
                     if radius <= radius2:
                         self.prev = self.currentboxx
                         self.currentboxx = index
