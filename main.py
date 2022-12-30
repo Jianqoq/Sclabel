@@ -99,7 +99,7 @@ class Win(QMainWindow):
         window.saveloc = saveloc
         window.win.dockWidget.show()
         window.win.dockWidget_3.show()
-        window.readimg(path, window.win, window.label, geo.width(), geo.height())
+        window.readimg(path, window.win, window.label, geo.width(), geo.height(), self.dpi, window.storelabeling)
         window.dir = False
         window.singal = True
         window.win.dockWidget.setFloating(True)
