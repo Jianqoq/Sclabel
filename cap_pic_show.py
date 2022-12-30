@@ -10,12 +10,13 @@ from functions.Image_process import *
 class MyLabel2(QLabel):
     def __init__(self, temploc, temp, img_width,
                  img_height, half_width, half_height, main_win,
-                 quality, parent=None):
+                 quality, hide, parent=None):
         super(MyLabel2, self).__init__(parent=parent)
         self.mainwindow = main_win
-        self.factor1 =main_win.dpi
+        self.factor1 = main_win.dpi
         self.name2 = main_win.name
         self.save = main_win.readpath
+        self.hide2 = hide
         self.x0 = 0
         self.y0 = 0
         self.x1 = int(main_win.width)
@@ -104,7 +105,7 @@ class MyLabel2(QLabel):
                 self.temp.cleanup()
                 os.unlink(self.name)
             self.toggle = True
-            self.parent().close() if self.mainwindow is None else (self.mainwindow.show(), self.parent().close())
+            self.parent().close() if not self.hide2 else (self.mainwindow.show(), self.parent().close())
 
     def mouseMoveEvent(self, event):
         if not self.check:
