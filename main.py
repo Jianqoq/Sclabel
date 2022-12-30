@@ -204,8 +204,7 @@ class Win(QMainWindow):
         wind.new_win.setupUi(wind)
         newx = int(x // factor)
         newy = int(y // factor)
-        win_instance = self if win.checkBox.isChecked() else None
-        self.label = MyLabel2(temploc, temp, x, y, newx, newy, win_instance, quality, wind)
+        self.label = MyLabel2(temploc, temp, x, y, newx, newy, self, quality, win.checkBox.isChecked(), wind)
         label = self.label
         label.setPixmap(image)
         self.updateidct()
