@@ -355,7 +355,7 @@ class QLineEditMask(QMainWindow):
                 label.repaint()
             else:
                 path = self.getnext()
-                self.readimg(path, win, label, width, height)
+                self.readimg(path, win, label, width, height, dpi, storelabeling)
                 self.lastname = path
 
     def eventFilter(self, src, event):
@@ -389,12 +389,12 @@ class QLineEditMask(QMainWindow):
                 self.lastname = file
                 label.clear()
                 self.updatesaveloc(file)
-                self.readimg(file, win, label, self.width, self.height)
+                self.readimg(file, win, label, self.width, self.height, self.dpi, self.storelabeling)
                 autosave(mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
             else:
-                autosave(self.mainwindow, None, 'Saving setting', 'Last annotation file')
+                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 self.templist.clear()
                 label.clear()
@@ -408,7 +408,7 @@ class QLineEditMask(QMainWindow):
                 label.clear()
                 self.savefile(templist, self.storelabeling, self.saveloc)
                 self.updatesaveloc(file)
-                self.readimg(file, win, label, self.width, self.height)
+                self.readimg(file, win, label, self.width, self.height, self.dpi, self.storelabeling)
                 autosave(mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 templist.clear()
@@ -417,7 +417,7 @@ class QLineEditMask(QMainWindow):
                 self.storelabeling['Label'].clear()
                 templist.clear()
                 label.clear()
-                autosave(mainwindow, None, 'Saving setting', 'Last annotation file')
+                autosave(mainwindow, 'None', 'Saving setting', 'Last annotation file')
                 label.close()
                 self.close()
         elif event.type() == QEvent.KeyPress and (event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Plus)\
