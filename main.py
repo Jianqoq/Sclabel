@@ -70,7 +70,7 @@ class Win(QMainWindow):
         win.frame_3.installEventFilter(self)
         win.settings.clicked.connect(lambda: self.settingwin(self.pos(), win.frame_2))
         win.create.clicked.connect(lambda: self.cap_opennewwin(win, self.slidervalue))
-        win.pushButton_3.clicked.connect(lambda: self.annotation(win))
+        win.pushButton_3.clicked.connect(lambda: self.annotation(win, win.frame))
         win.checkBox.toggled.connect(lambda: self.update4(path, 'check', win.checkBox.isChecked()))
         win.checkBox_2.toggled.connect(lambda: self.update3(path, 'labeling function', win.checkBox_2.isChecked()))
         win.lineEdit.textEdited.connect(lambda: w_update(self, 'Saving setting', 'width', win.lineEdit))
@@ -80,13 +80,13 @@ class Win(QMainWindow):
 
         self.show()
 
-    def annotation(self, win):
+    def annotation(self, win, frame):
         self.window2 = QLineEditMask(geo.width(), geo.height(), self)
         window2 = self.window2
         window2.show()
-        point = win.frame.mapToGlobal(win.frame.pos())
-        x = point.x() + win.frame.width()//2 - window2.geometry().width()//2
-        y = point.y() + win.frame.height()//2 - window2.geometry().height()//2 - 60
+        point = frame.mapToGlobal(frame.pos())
+        x = point.x() + frame.width()//2 - window2.geometry().width()//2
+        y = point.y() + frame.height()//2 - window2.geometry().height()//2 - 60
         window2.move(x, y)
         win.pushButton_3.setEnabled(False)
         self.labelling = True
@@ -94,16 +94,17 @@ class Win(QMainWindow):
     def directannotate(self, path):
         self.window2 = QLineEditMask(geo.width(), geo.height(), self)
         window = self.window2
+        window_win = window.win
         saveloc = get_label_filename(path)
         window.storelabeling['Image path'] = path
         window.saveloc = saveloc
-        window.win.dockWidget.show()
-        window.win.dockWidget_3.show()
-        window.readimg(path, window.win, window.label, geo.width(), geo.height(), self.dpi, window.storelabeling)
+        window_win.dockWidget.show()
+        window_win.dockWidget_3.show()
+        window.readimg(path, window_win, window.label, geo.width(), geo.height(), self.dpi, window.storelabeling)
         window.dir = False
         window.singal = True
-        window.win.dockWidget.setFloating(True)
-        window.win.dockWidget_3.setFloating(True)
+        window_win.dockWidget.setFloating(True)
+        window_win.dockWidget_3.setFloating(True)
         window.label.show()
         window.hide()
 
