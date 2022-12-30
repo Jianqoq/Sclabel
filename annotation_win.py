@@ -18,6 +18,7 @@ class QLineEditMask(QMainWindow):
         self.win = Ui_Form()
         win = self.win
         win.setupUi(self)
+        dpi = self.dpi = self.devicePixelRatioF()
 
         # get the main window instance
         self.mainwindow = mainwindow
@@ -25,7 +26,7 @@ class QLineEditMask(QMainWindow):
         self.last_file = read_savedfile(mainwindow)
 
         # init label
-        self.label = Mylabel(self)
+        self.label = Mylabel(dpi, self)
         label = self.label
 
         # get widget pos
@@ -36,7 +37,6 @@ class QLineEditMask(QMainWindow):
         self.setMouseTracking(True)
         self.setMaximumSize(self.size())
         self.setMinimumSize(self.size())
-        dpi = self.dpi = self.devicePixelRatioF()
         win.lineEdit.hide()
         win.lineEdit_2.hide()
         win.dockWidget.hide()
@@ -106,7 +106,7 @@ class QLineEditMask(QMainWindow):
         self.index = None
 
         # labelling file content
-        storelabeling = self.storelabeling = {
+        self.storelabeling = {
                                               'Image path': self.imgname,
                                               'Image_width': 0,
                                               'Image_height': 0,
@@ -537,7 +537,7 @@ class QLineEditMask(QMainWindow):
                 file.close()
 
     def popupdialog(self, pos, dialog, label):
-        y = pos.y() + dialog.dialog.frame_2.height() - label.pos().y()- label.geometry().height()
+        y = pos.y() + dialog.dialog.frame_2.height() - label.pos().y() - label.geometry().height()
         x = pos.x() + dialog.dialog.frame_2.width() - label.pos().x() - label.geometry().width()
         if y > 0 and x < 0:
             dialog.move(pos.x(), pos.y()-y)
