@@ -433,6 +433,7 @@ class QLineEditMask(QMainWindow):
             mainwindow.show()
         elif event.type() == QEvent.Close:
             mainwindow.win.pushButton_3.setEnabled(True)
+            mainwindow.show()
             self.close()
             win.dockWidget.close()
             win.dockWidget_3.close()
