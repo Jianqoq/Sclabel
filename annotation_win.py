@@ -359,94 +359,52 @@ class QLineEditMask(QMainWindow):
                 self.lastname = path
 
     def eventFilter(self, src, event):
-        win = self.win
-        label = self.label
-        mainwindow = self.mainwindow
-        if event.type() == QEvent.DragEnter:
-            event.accept()
-        elif event.type() == QEvent.Drop:
-            self.path = event.mimeData().urls()[0].toLocalFile()
-        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == win.dockWidget and self.toggle:
-            self.closelineedit(win)
-        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == win.dockWidget and self.toggle2:
-            self.closelineedit_2(win)
-        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == win.dockWidget and self.toggle3:
-            self.closeslider(win)
-        elif event.type() == QEvent.ContextMenu and QtCore.Qt.RightButton and\
-                src == win.listWidget_2 and self.selected:
-            self.selected = False
-            menu = QMenu()
-            font = QtGui.QFont()
-            font.setFamily("Segoe UI")
-            font.setPixelSize(9)
-            font.setWeight(75)
-            menu.addAction(self.action4)
-            menu.setFont(font)
-            menu.exec_(event.globalPos())
-        elif event.type() == QEvent.KeyPress and event.key() == 16777236 and self.dir:
-            file = self.getnext()
-            if file != 0:
-                self.lastname = file
-                label.clear()
-                self.updatesaveloc(file)
-                self.readimg(file, win, label, self.width, self.height, self.dpi, self.storelabeling)
-                autosave(mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
-                self.storelabeling['Label'].clear()
-                self.templist.clear()
-            else:
-                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
-                self.storelabeling['Label'].clear()
-                self.templist.clear()
-                label.clear()
-                label.close()
-                self.close()
-        elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Plus and self.dir:
-            file = self.getnext()
+                    file = self.getnext()
             templist = self.templist
             if file != 0:
                 self.lastname = file
-                label.clear()
+                self.label.clear()
                 self.savefile(templist, self.storelabeling, self.saveloc)
                 self.updatesaveloc(file)
-                self.readimg(file, win, label, self.width, self.height, self.dpi, self.storelabeling)
-                autosave(mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
+                self.readimg(file, self.qline, self.label, self.width, self.height, self.dpi, self.storelabeling)
+                autosave(self.mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
                 self.storelabeling['Label'].clear()
                 templist.clear()
             else:
                 self.savefile(templist, self.storelabeling, self.saveloc)
                 self.storelabeling['Label'].clear()
                 templist.clear()
-                label.clear()
-                autosave(mainwindow, 'None', 'Saving setting', 'Last annotation file')
-                label.close()
+                self. label.clear()
+                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
+                self.label.close()
                 self.close()
         elif event.type() == QEvent.KeyPress and (event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Plus)\
-                and (mainwindow.labelling or self.singal):
+                and (self.mainwindow.labelling or self.singal):
             templist = self.templist
             self.savefile(templist, self.storelabeling, self.saveloc)
             self.close()
-            win.dockWidget.close()
-            win.dockWidget_3.close()
-            label.close()
+            self.qline.dockWidget.close()
+            self.qline.dockWidget_3.close()
+            self.label.close()
             self.storelabeling['Label'].clear()
             templist.clear()
-            mainwindow.show()
+            self.mainwindow.show()
         elif event.type() == QEvent.Close:
-            mainwindow.win.pushButton_3.setEnabled(True)
-            mainwindow.show()
+            self.mainwindow.win.pushButton_3.setEnabled(True)
+            self.mainwindow.show()
             self.close()
-            win.dockWidget.close()
-            win.dockWidget_3.close()
+            self.qline.dockWidget.close()
+            self.qline.dockWidget_3.close()
         elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
-            mainwindow.win.pushButton_3.setEnabled(True)
-            label.close()
-        elif event.type() == QEvent.Resize and src == label:
+            self.mainwindow.win.pushButton_3.setEnabled(True)
+            self.label.close()
+        elif event.type() == QEvent.Resize and src == self.label:
             w = self.w
             h = self.h
-            wfactor = w / label.geometry().width() if w <= self.width else w / label.geometry().width()
-            hfactor = h / label.geometry().height() if h <= self.height else h / label.geometry().height()
-            label.wfactor = wfactor
-            label.hfactor = hfactor
+            wfactor = w / self.label.geometry().width() if w <= self.width else w / self.label.geometry().width()
+            hfactor = h / self.label.geometry().height() if h <= self.height else h / self.label.geometry().height()
+            self.label.wfactor = wfactor
+            self.label.hfactor = hfactor
         return super().eventFilter(src, event)
 
     def getnext(self):
