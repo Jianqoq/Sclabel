@@ -19,8 +19,11 @@ class MyLabel2(QLabel):
         self.hide2 = hide
         self.x0 = 0
         self.y0 = 0
-        self.x1 = int(main_win.width)
-        self.y1 = int(main_win.height)
+        main_win_width = int(main_win.width)
+        main_win_height = int(main_win.height)
+        self.main_win_width = main_win_width
+        self.main_win_height = main_win_height
+        self.x1, self.y1 = calculation.label2_event_pos(main_win_width, main_win_height, self.factor1)
         self.path = main_win.path
         self.pixmap = None
         self.name = None
@@ -50,57 +53,57 @@ class MyLabel2(QLabel):
     def mousePressEvent(self, event):
         if event.buttons() == Qt.LeftButton and not self.check:
             self.check = True
-            self.rect = QRect(0, 0, 0, 0)
             x = event.pos().x()
             y = event.pos().y()
-            self.tempfile, self.name, self.nparray = readimage(self.temploc,
-                                                               int(x*self.factor1),
-                                                               int(y*self.factor1),
-                                                               self.x1, self.y1,
+            factor = self.factor1
+            self.tempfile, self.name, self.nparray = readimage(self.temploc, int(x*factor), int(y*factor),
+                                                               self.main_win_width, self.main_win_height,
                                                                self.imagedict[self.index],
                                                                self.imagedict[self.index][2])
-            self.pixmap = QPixmap(self.name)
-            self.pixmap.setDevicePixelRatio(self.factor1)
-            self.setPixmap(self.pixmap)
-            self.resize(int(self.pixmap.width()//self.factor1),
-                        int(self.pixmap.height()//self.factor1))
+            pixmap = self.pixmap = QPixmap(self.name)
+            pixmap.setDevicePixelRatio(factor)
+            self.setPixmap(pixmap)
+            self.resize(int(pixmap.width()//factor),
+                        int(pixmap.height()//factor))
             self.pressed = True
             self.move(x, y)
         elif event.buttons() == Qt.RightButton and self.name and self.check:
+            factor = self.factor1
             self.rectlist.clear()
             self.initpos = QPoint()
             self.finalpos = QPoint()
             self.tempfile.close()
             os.unlink(self.name)
-            self.pixmap = QPixmap(self.temploc)
-            self.pixmap.setDevicePixelRatio(self.factor1)
-            self.resize(int(self.pixmap.width()//self.factor1),
-                        int(self.pixmap.height()//self.factor1))
+            pixmap = self.pixmap = QPixmap(self.temploc)
+            pixmap.setDevicePixelRatio(factor)
+            self.resize(int(pixmap.width()//factor),
+                        int(pixmap.height()//factor))
             self.move(0, 0)
-            self.setPixmap(self.pixmap)
+            self.setPixmap(pixmap)
             self.pressed = False
             self.check = False
-            x, y = calculation.label2_event_pos(self.x1, self.y1, self.factor1)
             x0 = event.globalPos().x()
             y0 = event.globalPos().y()
-            self.rect = QRect(x0, y0, x, y)
+            self.rect = QRect(x0, y0, self.x1, self.y1)
             self.repaint()
 
     def keyPressEvent(self, event):
 
         if event.key() == Qt.Key_Return and not self.pressed:
-            new_path = self.checkrepeatname(self.save, self.name2, self.imagedict[self.index][1])
-            savefullimg(self.temploc, new_path, self.imagedict[self.index], self.imagedict[self.index][2])
+            index = self.index
+            new_path = self.checkrepeatname(self.save, self.name2, self.imagedict[index][1])
+            savefullimg(self.temploc, new_path, self.imagedict[index], self.imagedict[index][2])
             self.dolabelling(new_path, self.mainwindow)
 
         elif event.key() == Qt.Key_Return and self.nparray is not None:
+            index = self.index
             self.tempfile.close()
             os.unlink(self.name)
             self.temp.cleanup()
-            path = self.checkrepeatname(self.save, self.name2, self.imagedict[self.index][1])
+            path = self.checkrepeatname(self.save, self.name2, self.imagedict[index][1])
             if not os.path.exists(self.save):
                 os.makedirs(self.save)
-            cv2.imwrite(path, self.nparray, [self.imagedict[self.index][0], self.imagedict[self.index][2]])
+            cv2.imwrite(path, self.nparray, [self.imagedict[index][0], self.imagedict[index][2]])
             if self.mainwindow is None:
                 self.parent().close()
             self.dolabelling(path, self.mainwindow)
@@ -116,17 +119,18 @@ class MyLabel2(QLabel):
         if not self.check:
             x0 = event.globalPos().x()
             y0 = event.globalPos().y()
-            x, y = calculation.label2_event_pos(self.x1, self.y1, self.factor1)
-            self.rect = QRect(x0, y0, x, y)
+            self.rect = QRect(x0, y0, self.x1, self.y1)
             self.update()
             self.x0 = x0
             self.y0 = y0
 
     def paintEvent(self, event):
         super().paintEvent(event)
-        painter = QPainter(self)
-        painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
-        painter.drawRect(self.rect)
+        if not self.check:
+            painter = QPainter(self)
+            painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+            painter.drawRect(self.rect)
+
 
     def getformat(self):
         config = configparser.ConfigParser()
@@ -154,6 +158,6 @@ class OpenWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.win1 = QMainWindow()
-        self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlag(Qt.FramelessWindowHint)
         self.new_win = New_Ui_MainWindow()
         self.setFocusPolicy(Qt.NoFocus)
