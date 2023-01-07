@@ -96,7 +96,7 @@ def readdir(self, path, username):
                 file.close()
         index += 1
 
-
+# source code from http://www.jiuaitu.com/python/398.html
 def window_capture(filename, x, y, sizex, sizey):
     hwnd = 0
     hwndDC = win32gui.GetWindowDC(hwnd)
