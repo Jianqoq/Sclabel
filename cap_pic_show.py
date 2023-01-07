@@ -80,6 +80,11 @@ class MyLabel2(QLabel):
             self.setPixmap(self.pixmap)
             self.pressed = False
             self.check = False
+            x, y = calculation.label2_event_pos(self.x1, self.y1, self.factor1)
+            x0 = event.globalPos().x()
+            y0 = event.globalPos().y()
+            self.rect = QRect(x0, y0, x, y)
+            self.repaint()
 
     def keyPressEvent(self, event):
 
