@@ -110,6 +110,11 @@ def window_capture(filename, x, y, sizex, sizey):
     saveDC.SelectObject(saveBitMap)
     saveDC.BitBlt((x, y), (sizex, sizey), mfcDC, (0, 0), win32con.SRCCOPY)
     saveBitMap.SaveBitmapFile(saveDC, filename)
+    # 
+    win32gui.DeleteObject(saveBitMap.GetHandle())
+    mfcDC.DeleteDC()
+    saveDC.DeleteDC()
+    win32gui.ReleaseDC(hwnd, hwndDC)
 
 
 def updatefilename(path, name, section, item, config_name):
