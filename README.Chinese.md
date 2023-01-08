@@ -1,7 +1,7 @@
 # Sclabel
 [![en](https://img.shields.io/badge/language-English-red.svg)](https://github.com/Jianqoq/Sclabel/blob/main/README.md)
 
-一个工具，可以做固定大小的截图，图像放大，和图像注释
+一个可以做固定大小截图，图像增强，和图像注释的工具
 
 # 要求
 模块: PyQt5, Numpy, Opencv, Cython, pywin32
