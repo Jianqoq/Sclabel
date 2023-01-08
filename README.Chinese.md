@@ -2,10 +2,10 @@
 [![en](https://img.shields.io/badge/language-English-red.svg)](https://github.com/Jianqoq/Sclabel/blob/main/README.md)
 一个工具，可以做固定大小的截图，图像放大，和图像注释
 
-# Requirment
-库: PyQt5, Numpy, Opencv, Cython, pywin32
+# 要求
+模块: PyQt5, Numpy, Opencv, Cython, pywin32
 
-编译器: Python 3.10 or above
+编译器版本: Python 3.10 or above
 
 操作系统: windows
 
