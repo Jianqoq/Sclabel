@@ -5,11 +5,11 @@
 # 要求
 模块: PyQt5, Numpy, Opencv, Cython, pywin32
 
-编译器版本: Python 3.10 or above
+编译器: Python 3.10 or above
 
 操作系统: windows
 
-# Features
+# 特性
 1.全屏或固定尺寸截图。
 2.图像处理。目前支持翻转、镜像、旋转和移动。
 3.图像注释。目前支持矩形。
