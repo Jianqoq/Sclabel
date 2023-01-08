@@ -265,7 +265,7 @@ for index, name in enumerate(list):
             break
         print_result(index, limit)
 ```
-最后，您可以通过调用“split_dataset_2_train_val”函数来简单地执行这种拆分，其中0.8是训练数据，(1-0.8)是验证数据。。“png”是一种图像格式。“txt”是标签文件格式。
+最后，您可以通过调用“split_dataset_2_train_val”函数来简单地执行这种拆分，其中0.8是训练数据，(1-0.8)是验证数据。“png”是一种图像格式。“txt”是标签文件格式。
 ```
 split_dataset_2_train_val(0.8, r'C:\Users\Public\Pictures\data\DATASET',
                           r'C:\Users\Public\Pictures\VOCdevkit\images\Train',
