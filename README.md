@@ -1,17 +1,17 @@
 # Sclabel
 [![en](https://img.shields.io/badge/language-Chinese-green.svg)](https://github.com/Jianqoq/Sclabel/blob/main/README.Chinese.md)
-A tool which can do screenshot with fixed size, image augment, and image annotation
+A tool that can do a screenshot with a fixed size, image augment, and image annotation
 
 # Requirment
-Libary: PyQt5, Numpy, Opencv, Cython, pywin32
+Library: PyQt5, Numpy, Opencv, Cython, pywin32
 
-Interpretor: Python 3.10 or above
+Interpreter: Python 3.10 or above
 
 Operation system: windows
 
 # Features
-1. Take full or fixed size screenshot.
-2. Image processing. Flip, mirror, rotation and shiftting.
+1. Take full or fixed-size screenshots.
+2. Image processing. Flip, mirror, rotation, and shifting.
 3. Image annotation. Support rectangular shape so far.
 4. Random Image augmentation.
 5. Traning and validation dataset splitting.
@@ -19,13 +19,13 @@ Operation system: windows
 # How to use
 1. Screenshot.
 
-You can either press Key_Minus or click the create button. If you want to cut the image, left click after the red box shows up. Right click to undo the cropping. Press Key_Escape to exit the cropping. Press Key_Return to save the cropped image. If you want to save a full screenshot instead of a cropped image, directly press Key_Return without press left click on mouse.
+You can either press Key_Minus or click the create button. If you want to cut the image, left-click after the red box shows up. Right-click to undo the cropping. Press Key_Escape to exit the cropping. Press Key_Return to save the cropped image. If you want to save a full screenshot, directly press Key_Return when a red rect appears.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif.gif)
 
 2. Setting window
 
-See the notes down below. Label file name would be the same as the image file's just with different format. This location is not supported yet, currently label file will be saved in the same directory of image file.
+See the notes down below. The label file name would be the same as the image file just with a different format. This location is not supported yet, currently, the label file will be saved in the same directory as the image file.
 
 ![Image text](https://github.com/Jianqoq/Sclabel/blob/main/Image/setting.png)
 
@@ -35,29 +35,29 @@ See the notes down below. Label file name would be the same as the image file's 
 
 4. Annotation(single file)
 
-Click annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labelling mode, a dialog box will popup after mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right hand side, you will see a list of annotation information.
+Click the annotation button in the main window will popup a new window. You can drag a folder or an image to it. Click confirm will enter the annotation mode. In the labeling mode, a dialog box will pop up after the mouse release event is triggered and then you can either type a new name or click an item inside the list box. On the right-hand side, you will see a list of annotation information.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/GIF2.gif)
 
-Double click an item can select a specific box then you will only be able to resize this box. Double click again can cancel the selection. You can delete any boxes by right click item in the list. 
+Double-click can select a specific box then you will only be able to resize it. Double-click again can cancel the selection. You can delete any boxes by right click items in the list. 
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif3.gif)
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif4.gif)
 
-When you are done, press Key_Return or Key_Plus will exit the annotation mode and a json file will be generated in the same directory of image file. Press Key_Plus or Key_Return can exit the software and generate labelling file. 
+When you are done in single file annotation mode, press Key_Return or Key_Plus will exit the annotation mode and a JSON file will be generated in the same directory of the image file. Press Key_Plus or Key_Return can exit the software and generate labeling file. 
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif5.gif)
 
-5. Annotation(Multi file)
+5. Annotation(Multi-file)
 
-For multi image file annotation, operation is simillar to how you do for single file. You just need to drag a folder instead of an image. If you want to continue labelling, simply click confirm directly and then click OK button. Click cancel if you don't want and software will read the image you provided.
+For multi-image file annotation, the operation is similar to how you do for a single file. You just need to drag a folder instead of an image. If you want to continue labeling, simply click confirm directly and then click the OK button. Click Cancel if you don't want and the software will read the image you provided.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif6.gif)
 
-Note: After enter the annotation mode, press Key_Arrowleft can go to the next image without saving annotation file, press Key_Plus can go to the next file and generate labelling file, or press Key_Return can exit the software and generate labelling file. 
+Note: After entering the annotation mode, press Key_Arrowleft can go to the next image without saving the annotation file, press Key_Plus can go to the next file and generate a labeling file, or press Key_Return can exit the software and generate a labeling file. 
 
-# How does fixed size screenshot works
-Image is three dimension array(three dimension tensor). For example, we have a shape of array
+# How does fixed size screenshot work
+The image is three dimension array(three dimension tensor). For example, we have the shape of an array
 ```   
 In: image = np.array([[[1, 1, 1],
                        [4, 4, 4]],
@@ -67,7 +67,7 @@ In: image.shape
 
 Out: (2, 2, 3)
 ```
-2 x 2 means the image has both width and height with 2 pixels. 3 means the number of color channels(RGB normally). It means an image is consists of three 2x2 matrix. We can treat each whole column as one image with one color channel.
+2 x 2 means the image has both width and height with 2 pixels. 3 means the number of color channels(RGB normally). It means an image consists of three 2x2 matrices. We can treat each whole column as one image with one color channel.
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image.jpg)
 ```
 1   1   1
@@ -76,7 +76,7 @@ Out: (2, 2, 3)
 1   1   1
 4   4   4
 ```
-If we want to crop an image with color. we will simply combine the three big columns to a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the uppper half of the image.
+If we want to crop an image with color. we will simply combine the three big columns into a whole thing and do slicing only along the first and the second axis. The example below shows us how we can crop the upper half of the image.
 ```
 In: image[0: 1, 0: 2]
 
@@ -85,32 +85,32 @@ Out: array([[[1, 1, 1],
 ```
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image2.jpg)
 
-In this sofware, a red rectangular will be displayed and its dimension represents slicing area when you are doing image cropping.
+In this software, a red rectangular will be displayed and its dimension represents the slicing area when you are doing image cropping.
 
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/b6e9515a10957967ddee00befa6ea40.png)
-# How to convert json file to Yolo format
+# How to convert JSON file to Yolo format
 In the Dataset_manipulation_example/dataset_manipulation.py file, I provided an example to do this. Functions are 'convert' and 'convert_json2label'
 
-The first number represents the class name. The second and the third represents the center point of the bounding box relative to the image. The forth and the fifth represents the width and height of the bounding box relative to the image.
+The first number represents the class name. The second and the third represent the center point of the bounding box relative to the image. The fourth and the fifth represent the width and height of the bounding box relative to the image.
 
-Json file this software generates includes two points of bounding box, image width, image height, and class name. Thus we can do some calculation to convert them to meet Yolo requirement.
+JSON file this software generates includes two points of the bounding box, image width, image height, and class name. Thus we can do some calculations to convert them to meet Yolo's requirement.
 
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/format.png)
 
-In python, we can easily convert json file to dictionary by using json libary.
+In Python, we can easily convert a JSON file to a dictionary by using JSON library.
 ```
 import json
 jsonfile_path = '......'
 with open(jsonfile_path) as fp:
     dictionary = json.load(fp)
 ```
-After we get the information from the json file, we first get all the info from the dictionary.
+After we get the information from the JSON file, we first get all the info from the dictionary.
 ```
 width = int(dic['Image_width'])
 height = int(dic['Image_height'])
 points = ((item['Init Pos'], item['final Pos'], item['Name']) for item in dic['Label'])
 ```
-Then, we create a dictionary contain class name and corresponding number. Later, we use a for loop to store all the calculation result to a list.
+Then, we create a dictionary containing the class name and corresponding number. Later, we use a for loop to store all the calculation results in a list.
 ```
 dictionary = {
     'sdv': 1,
@@ -132,7 +132,7 @@ for initpt, finalpt, name in points:
     relative_height = format(label_height/height, '.6f')
     lis.append(f'{dictionary[name]} {center_x} {center_y} {relative_width} {relative_height}\n')
 ```
- However, instead of  using for loop directly, we will use List comprehension to make the performance higher and make the code cleaner. First we define a function call calculate and let it return the string. Then we use List comprehension.
+ However, instead of using for loop directly, we will use List comprehension to make the performance higher and make the code cleaner. First, we define a function called calculate and let it return the string. Then we use List comprehension.
  ```
  def calculate(initpt, finalpt, name, width, height, classdict):
     initpoint = initpt
@@ -162,14 +162,14 @@ points = ((item['Init Pos'], item['final Pos'], item['Name']) for item in dic['L
 final_list = [calculate(initpt, finalpt, name, width, height, classdict) for initpt, finalpt, name in points]
 
 ```
-Finally, we convert the list to string and then write the result to file.
+Finally, we convert the list to a string and then write the result to a file.
 ```
 string = ''.join(final_list)
 with open(path, mode='w') as fp:
     fp.write(string)
 ```
 # Image processing(How to avoid content losing during rotation by using Opencv)
-First, to rotate an image. Opencv gives us a way to do so.
+First, Opencv gives us a way to rotate an image.
 ```
 import cv2
 
@@ -181,9 +181,9 @@ scale_factor = 1                        # define scaling factor
 Matrix = cv2.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), rotate_angle, scale_factor)   # get the transform matrix
 final_image = cv2.warpAffine(image, Matrix, (cols, rows))                               # rotate image
 ```
-However, it could easily cause content losing by using scale_factor with 1. To avoid this happens, we need to assign a correct factor value no matter what the rotation angle is. Saddly. Opencv seems doesn't provide a function to get this scale factor value. Thus, we need to do some simple geometrical analysis.
+However, it could easily cause content loss by using scale_factor with 1. To avoid this happening, we need to assign a correct factor value no matter what the rotation angle is. Sadly. OpenCV seems doesn't provide a function to get this scale factor value. Thus, we need to do some simple geometrical analysis.
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/image3.jpg)
-We first need to get the new width and new height. Then, we can calculate the scale factor for the corresponding edge. We pick the smallest factor by comparing these two value. The source code can be found at functions/calculation.py. Thus, we change some code.
+We first need to get the new width and new height. Then, we can calculate the scale factor for the corresponding edge. We pick the smallest factor by comparing these two values. The source code can be found at functions/calculation.py. Thus, we change some code.
 ```
 import cv2
 from functions import calculation
@@ -201,7 +201,7 @@ final_image = cv2.warpAffine(image, Matrix, (cols, rows))                       
 
 # How to let painted bounding box be selectable and resizable
 
-First, Use a list to store the rect and draw all the rect in paintevent. Store all the rect info into other lists everytime a new rect is created. During MousemoveEvent, track and use for loop to check if the mouse is close to the edges. Function can be found at functions/Draw.py and cython_pyx/Find_edge.pyx.
+First, Use a list to store the rect and draw all the rect in paintevent. Store all the rect info into other lists every time a new rect is created. During MousemoveEvent, track and use for loop to check if the mouse is close to the edges. The function can be found at functions/Draw.py and cython_pyx/Find_edge.pyx.
 ```
 def paintEvent(self, event):
   super().paintEvent(event)
@@ -217,15 +217,15 @@ def paintEvent(self, event):
 ```
 
 # How to print progress while doing a large dataset manipulation
-In the functions/dataset_manipulation.py file, the function 'print_result' can perform such function.
+In the functions/dataset_manipulation.py file, the function 'print_result' can perform such a function.
 
-First, we create a list with 18 space string and 1 brackets [ or ] at both ends of the list
+First, we create a list with 18 space strings and 1 bracket [ or ] at both ends of the list
 ```
 In: lis = ['[' if i == 0 else ']' if i == 19 else ' ' for i in range(20)]
 In: print(''.join(lis))
 Out: [                  ]
 ```
-Second, change the first and second space string to u'\u25A0' which is a unicode will get the output shown below
+Second, change the first and second space string to u'\u25A0' which is a Unicode will get the output shown below
 ```
 In: lis = ['[' if i == 0 else ']' if i == 19 else ' ' for i in range(20)]
 In: lis[1] = u'\u25A0'
@@ -233,20 +233,20 @@ In: lis[2] = u'\u25A0'
 In: print(''.join(lis))
 Out: [■■                ]
 ```
-Final code would be
+The final code would be
 ```
 In: print_result(40, 100)
 Out: [■■■■■■            ] 40.00%
 ```
-# How to split imageset to train and validation
+# How to split image set to train and validation
 
-Such function can be found in the functions/dataset_manipulation.py file.
-First we get the list contains all the image file ends with '.png'
+Such a function can be found in the functions/dataset_manipulation.py file.
+First, we get the list containing all the image file ending with '.png'
 ```
 list = [file.name for file in os.scandir(origi_dir) if file.name.endswith('.png')]
 ```
-Second, we iterate through the list and get the sorce path of json file and image file then move to the distination folder. stop once the train/val ratio reached.
-progress can be printed by providing the total number of files we need to process and the current file number. use a simillar for loop to move the rest of the file to validation folder.
+Second, we iterate through the list and get the source path of JSON file and image file then move to the destination folder. stop once the train/Val ratio is reached.
+progress can be printed by providing the total number of files we need to process and the current file number. use a similar for loop to move the rest of the file to the validation folder.
 ```
 list = [file.name for file in os.scandir(origi_dir) if file.name.endswith('.png')]
 length = len(list)              
@@ -265,7 +265,7 @@ for index, name in enumerate(list):
             break
         print_result(index, limit)
 ```
-Finally, you can simply perform this splitting by calling 'split_dataset_2_train_val' function, where 0.8 is trainning data and (1-0.8) would be the validation data. '.png' is image format and '.txt' is labelling file format.
+Finally, you can simply perform this splitting by calling 'split_dataset_2_train_val' function, where 0.8 is training data and (1-0.8) would be the validation data. '.png' is the image format and '.txt' is the labeling file format.
 ```
 split_dataset_2_train_val(0.8, r'C:\Users\Public\Pictures\data\DATASET',
                           r'C:\Users\Public\Pictures\VOCdevkit\images\Train',
