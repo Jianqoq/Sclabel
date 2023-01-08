@@ -1,4 +1,11 @@
 # Sclabel
+%%
+Type: language
+Subtag: fr
+Description: French
+Added: 2005-10-16
+Suppress-Script: Latn
+%%
 A tool which can do screenshot with fixed size, image augment, and image annotation
 
 # Requirment
