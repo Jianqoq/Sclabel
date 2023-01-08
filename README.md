@@ -1,5 +1,6 @@
 # Sclabel
 [![en](https://img.shields.io/badge/language-Chinese-green.svg)](https://github.com/Jianqoq/Sclabel/blob/main/README.Chinese.md)
+
 A tool that can do a screenshot with a fixed size, image augment, and image annotation
 
 # Requirment
