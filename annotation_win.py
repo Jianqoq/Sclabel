@@ -5,21 +5,20 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIntValidator
 from UI.class_dialog import *
 from annotation_rect import *
-from UI.rect_settingpanel import *
+import UI.rect_settingpanel
 from functions.graphic_effect import *
 from functions.file_manipulation import  *
 from UI import Dialog2
 from UI.Message_Box import *
 
 
-class QLineEditMask(QMainWindow):
+class QLineEditMask(QWidget):
     def __init__(self, width, height, mainwindow):
         super(QLineEditMask, self).__init__()
-        self.win = Ui_Form()
-        win = self.win
+        self.qline = UI.rect_settingpanel.Rect_ui_Form()
+        win = self.qline
         win.setupUi(self)
         dpi = self.dpi = self.devicePixelRatioF()
-
         # get the main window instance
         self.mainwindow = mainwindow
         mainwindow = self.mainwindow
@@ -359,7 +358,46 @@ class QLineEditMask(QMainWindow):
                 self.lastname = path
 
     def eventFilter(self, src, event):
-                    file = self.getnext()
+        if event.type() == QEvent.DragEnter:
+            event.accept()
+        elif event.type() == QEvent.Drop:
+            self.path = event.mimeData().urls()[0].toLocalFile()
+        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.qline.dockWidget and self.toggle:
+            self.closelineedit(self.qline)
+        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.qline.dockWidget and self.toggle2:
+            self.closelineedit_2(self.qline)
+        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.qline.dockWidget and self.toggle3:
+            self.closeslider(self.qline)
+        elif event.type() == QEvent.ContextMenu and QtCore.Qt.RightButton and\
+                src == self.qline.listWidget_2 and self.selected:
+            self.selected = False
+            menu = QMenu()
+            font = QtGui.QFont()
+            font.setFamily("Segoe UI")
+            font.setPixelSize(9)
+            font.setWeight(75)
+            menu.addAction(self.action4)
+            menu.setFont(font)
+            menu.exec_(event.globalPos())
+        elif event.type() == QEvent.KeyPress and event.key() == 16777236 and self.dir:
+            file = self.getnext()
+            if file != 0:
+                self.lastname = file
+                self.label.clear()
+                self.updatesaveloc(file)
+                self.readimg(file, self.qline, self.label, self.width, self.height, self.dpi, self.storelabeling)
+                autosave(self.mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
+                self.storelabeling['Label'].clear()
+                self.templist.clear()
+            else:
+                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
+                self.storelabeling['Label'].clear()
+                self.templist.clear()
+                self.label.clear()
+                self.label.close()
+                self.close()
+        elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Plus and self.dir:
+            file = self.getnext()
             templist = self.templist
             if file != 0:
                 self.lastname = file
@@ -462,7 +500,7 @@ class QLineEditMask(QMainWindow):
         self.templist.append(self.storelabel(storebegin[-1], storeend[-1], self.name))
 
     def removeitem(self, label):
-        win = self.win
+        win = self.qline
         row = win.listWidget_2.currentIndex().row()
         label.rectlist.pop(row)
         label.storeend.pop(row)
