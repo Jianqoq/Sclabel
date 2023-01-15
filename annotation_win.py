@@ -590,7 +590,7 @@ class Dialog(QDialog):
         mainwin.additem()
         text = f'{mainwin.name}  Begin: ({mainwin.var1.x()},{mainwin.var1.y()})' \
                f'  End: ({mainwin.var2.x()},{mainwin.var2.y()})'
-        list_widget2 = mainwin.win.listWidget_2
+        list_widget2 = mainwin.qline.listWidget_2
         list_widget2.addItem(text)
         index = list_widget2.count()-1
         list_widget2.item(index).setData(Qt.UserRole, (mainwin.name, mainwin.var1, mainwin.var2))
