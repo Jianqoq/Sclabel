@@ -23,7 +23,7 @@
 按-或单击Create按钮。如果你想裁剪图像，在红框出现后左键点击即可。右键单击撤消裁剪。按ESC退出裁剪。按Enter保存裁剪后的图像。
 如果你想保存全屏截图而不是裁剪图片，直接按下Enter键。
 
-![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif.gif)
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif1.gif)
 
 2. 设置窗口
 
