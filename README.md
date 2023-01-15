@@ -22,7 +22,7 @@ Operation system: windows
 
 You can either press Key_Minus or click the create button. If you want to cut the image, left-click after the red box shows up. Right-click to undo the cropping. Press Key_Escape to exit the cropping. Press Key_Return to save the cropped image. If you want to save a full screenshot, directly press Key_Return when a red rect appears.
 
-![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif.gif)
+![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif1.gif)
 
 2. Setting window
 
