@@ -280,7 +280,7 @@ class Mylabel(QWidget):
         clear(self.storecolor)
         clear(self.storecircleradius)
         clear(self.storecirclebrushcolor)
-        clear(self.parent.win.listWidget_2)
+        self.parent.qline.listWidget_2.clear()
         self.currentboxx = None
         self.prev = None
         self.selected = False
