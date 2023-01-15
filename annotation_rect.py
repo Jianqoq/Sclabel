@@ -2,9 +2,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QWidget
 from cython_libary.draw import *
-from functions import Draw
 from cython_libary.Find_edge import *
-
+from timeit import timeit
 
 class Mylabel(QWidget):
     signal2 = pyqtSignal(QPointF, QPointF, name='valChanged')
@@ -102,7 +101,6 @@ class Mylabel(QWidget):
         radius = self.radius
         storebegin = self.storebegin
         storeend = self.storeend
-
         if edge and not selected:
             self.storerectbrushcolor[currentboxx] = QBrush(QColor(200, 200, 200, 40))
             self.storecolor[currentboxx] = QColor(248, 255, 106, 255)
@@ -151,7 +149,6 @@ class Mylabel(QWidget):
                 self.update_item(beginpoint, endpoint, currentboxx, selected, self.dpi)
                 self.update()
                 return
-
         elif selected and edge and pressed and currentboxx is not None:
             beginpoint = storebegin[parent.index]
             endpoint = storeend[parent.index]
@@ -264,25 +261,26 @@ class Mylabel(QWidget):
             endy = format(newend[currentboxx].y()*hfactor, '.3f')
             parent.templist[currentboxx]['Init Pos'] = (beginx, beginy)
             parent.templist[currentboxx]['final Pos'] = (endx, endy)
-            name = parent.win.listWidget_2.item(currentboxx).data(Qt.UserRole)[0]
-            parent.win.listWidget_2.item(currentboxx).setText(f'{name}'
-                                                              f'  Begin: ({beginx},{beginy})'
-                                                              f'  End: ({endx},{endy})')
+            name = parent.qline.listWidget_2.item(currentboxx).data(Qt.UserRole)[0]
+            parent.qline.listWidget_2.item(currentboxx).setText(f'{name}'
+                                                                f'  Begin: ({beginx},{beginy})'
+                                                                f'  End: ({endx},{endy})')
             self.pressed = False
             self.update()
         self.start = False
 
     def clear(self):
-        self.rectlist.clear()
-        self.storebegin.clear()
-        self.storeend.clear()
-        self.newbegin.clear()
-        self.newend.clear()
-        self.storerectbrushcolor.clear()
-        self.storecolor.clear()
-        self.storecircleradius.clear()
-        self.storecirclebrushcolor.clear()
-        self.parent.win.listWidget_2.clear()
+        clear = list.clear
+        clear(self.rectlist)
+        clear(self.storebegin)
+        clear(self.storeend)
+        clear(self.newbegin)
+        clear(self.newend)
+        clear(self.storerectbrushcolor)
+        clear(self.storecolor)
+        clear(self.storecircleradius)
+        clear(self.storecirclebrushcolor)
+        clear(self.parent.win.listWidget_2)
         self.currentboxx = None
         self.prev = None
         self.selected = False
