@@ -331,7 +331,7 @@ class QLineEditMask(QWidget):
                 new_w = self.w = int(img.width() // dpi)
                 new_h = self.h = int(img.height() // dpi)
                 realwidth = new_w if new_w <= width else width
-                realheight = new_h if new_w <= height else height
+                realheight = new_h if new_h <= height else height
                 windowposx = (width - realwidth)//2
                 windowposy = (height - realheight)//2
                 label.image = img
@@ -347,7 +347,7 @@ class QLineEditMask(QWidget):
                     win.dockWidget.move(0, dockposy)
                 elif changed:
                     win.dockWidget.move(windowposx - dockwidth, dockposy)
-                if changed and x + realwidth >= width:
+                if changed and x + win.dockWidget_3.width() >= width:
                     win.dockWidget_3.move(width - win.dockWidget_3.width(), dockposy2)
                 elif changed:
                     win.dockWidget_3.move(windowposx + realwidth, dockposy2)
@@ -507,8 +507,16 @@ class QLineEditMask(QWidget):
         label.storebegin.pop(row)
         label.newend.pop(row)
         label.newbegin.pop(row)
+        label.storecolor.pop(row)
+        label.storerectbrushcolor.pop(row)
+        label.selectedbox_begin.clear()
+        label.selectedbox_end.clear()
         win.listWidget_2.takeItem(row)
         self.templist.pop(row)
+        self.index = None
+        self.label.selected = False
+        label.currentboxx = None
+        label.prev = None
         label.update()
 
     def storelabel(self, initpos: QPoint, finalpos: QPoint, name):
