@@ -1,626 +1,249 @@
-import cv2
-import json
-from PyQt5.QtWidgets import QMainWindow, QColorDialog, QMenu, QAction, QDialog, QDialogButtonBox
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIntValidator
-from UI.class_dialog import *
-from annotation_rect import *
-import UI.rect_settingpanel
+from setting_Window import *
+from UI.main_window import *
+from annotation_win import *
 from functions.graphic_effect import *
-from functions.file_manipulation import  *
-from UI import Dialog2
-from UI.Message_Box import *
+from functions.file_manipulation import *
+from cap_pic_show import *
+import sys
+import ctypes
+from PyQt5.QtWidgets import QApplication
 
 
-class QLineEditMask(QWidget):
-    def __init__(self, width, height, mainwindow):
-        super(QLineEditMask, self).__init__()
-        self.qline = UI.rect_settingpanel.Rect_ui_Form()
-        win = self.qline
-        win.setupUi(self)
-        dpi = self.dpi = self.devicePixelRatioF()
-        # get the main window instance
-        self.mainwindow = mainwindow
-        mainwindow = self.mainwindow
-        self.last_file = read_savedfile(mainwindow)
+class Win(QMainWindow):
+    signal = pyqtSignal(int, int, name='valChanged2')
 
-        # init label
-        self.label = Mylabel(dpi, self)
-        label = self.label
-
-        # get widget pos
-        self.originpos = win.pushButton_5.pos()
-        self.originpos2 = win.horizontalSlider.pos()
-
-        # init UI
-        self.setMouseTracking(True)
-        self.setMaximumSize(self.size())
-        self.setMinimumSize(self.size())
-        win.lineEdit.hide()
-        win.lineEdit_2.hide()
-        win.dockWidget.hide()
-        win.dockWidget_3.hide()
-        win.dockWidget.setWindowTitle('Drawing Panel')
-        win.dockWidget_3.setWindowTitle('History Annotations')
-
-        # set validator to line edit
-        self.validator = QIntValidator()
-        validator = self.validator
-        win.lineEdit.setValidator(validator)
-        win.lineEdit_2.setValidator(validator)
-
-        self.action1 = QAction("Line Color")
-        self.action2 = QAction('Rect Brush Color')
-        self.action3 = QAction('Cir Brush Color')
-        self.action4 = QAction('Delete')
-        win.pushButton.setMenu(self.menu())
-        win.pushButton_3.setMenu(self.menu2())
-
-        # install event filter
-        win.dockWidget.installEventFilter(self)
-        win.listWidget_2.installEventFilter(self)
-        win.dockWidget_3.installEventFilter(self)
-        win.lineEdit_3.installEventFilter(self)
-        label.installEventFilter(self)
-        self.installEventFilter(self)
-
-        # current screen geometry after high dpi scaling(if device support high dpi)
-        self.width = width
-        self.height = height
-
-        # set floating window parent to label
-        win.dockWidget.setParent(label)
-        win.dockWidget_3.setParent(label)
-
-        # label name dialog
-        self.dialog = Dialog(label, self)
-        dialog = self.dialog
-        dialog.setWindowFlag(Qt.FramelessWindowHint)
-        dialog.setAttribute(Qt.WA_TranslucentBackground)
-        shadow(dialog)
-
-        # init var
-        self.name = None
-        self.toggle = False
-        self.toggle2 = False
-        self.toggle3 = False
-        self.toggle4 = False
-        self.selected = False
-        self.path = None
-        self.filename = None
-        self.imgname = None
-        self.basename = None
-        self.saveloc = None
-        self.color = None
-        self.displayed = False
-        self.lastname = None
-        self.dir = False
-        self.singal = False
-        self.toggle5 = False
-        self.w = 0
-        self.h = 0
-        self.count = 0
-        self.var1 = None
-        self.var2 = None
-        self.index = None
-
-        # labelling file content
-        self.storelabeling = {
-                                              'Image path': self.imgname,
-                                              'Image_width': 0,
-                                              'Image_height': 0,
-                                              'Label': []
-                                              }
-        self.templist = []
-
-        # action signal connect
-        self.action1.triggered.connect(lambda: self.rectborder_color_picker(label))
-        self.action2.triggered.connect(lambda: self.rectbrush_color_picker(label))
-        self.action3.triggered.connect(lambda: self.circle_color_picker(label))
-        self.action4.triggered.connect(lambda: self.removeitem(label))
-
-        # connect signal to widgets
-        win.lineEdit_3.textEdited.connect(lambda: win.lineEdit_3.setText(self.path))
-        win.pushButton_2.clicked.connect(lambda: self.showlineedit(win))
-        win.pushButton_5.clicked.connect(lambda: self.showlineedit_2(win))
-        win.pushButton_6.clicked.connect(lambda: self.showslider(win))
-        win.lineEdit.textEdited.connect(lambda: self.updatevalue(label, win))
-        win.horizontalSlider.valueChanged.connect(lambda: self.displayvalue(label, win))
-        win.listWidget_2.itemPressed.connect(self.print2)
-        win.listWidget_2.doubleClicked.connect(lambda: self.highlight(label, label.storerectbrushcolor, label.storecolor
-                                                                      , label.selectedbox_begin, label.selectedbox_end,
-                                                                      label.storebegin, label.storeend, win))
-        win.pushButton_7.clicked.connect(lambda: self.loadimg(True, win, self.path, label, dpi, self.storelabeling))
-        label.signal2.connect(self.print)
-
-    def updatevalue(self, label, win):
-        label.width = int(win.lineEdit.text())
-
-    def displayvalue(self, label, win):
-        label.radius = win.horizontalSlider.value()
-        win.pushButton_6.setText(str(win.horizontalSlider.value()))
-
-    def menu(self):
-        menu = QMenu()
-        font = QtGui.QFont()
-        font.setFamily("Bahnschrift SemiBold")
-        font.setPixelSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        menu.setFont(font)
-        menu.addAction('Rect')
-        menu.addAction('Poly')
-        return menu
-
-    def menu2(self):
-        menu = QMenu()
-        font = QtGui.QFont()
-        font.setFamily("Bahnschrift SemiBold")
-        font.setPixelSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        menu.setFont(font)
-        menu.addAction(self.action1)
-        menu.addAction(self.action2)
-        menu.addAction(self.action3)
-        return menu
-
-    def rectborder_color_picker(self, label):
-        dialog = QColorDialog()
-        color = dialog.getColor(options=QColorDialog.ShowAlphaChannel)
-        label.brush = QBrush(color, Qt.SolidPattern) if color.isValid() else False
-
-    def rectbrush_color_picker(self, label):
-        dialog = QColorDialog()
-        color = dialog.getColor(options=QColorDialog.ShowAlphaChannel)
-        label.rectbrushcolor = QBrush(color, Qt.SolidPattern) if color.isValid() else False
-
-    def circle_color_picker(self, label):
-        dialog = QColorDialog()
-        color = dialog.getColor(options=QColorDialog.ShowAlphaChannel)
-        label.circlebrushcolor = QBrush(color, Qt.SolidPattern) if color.isValid() else False
-
-    def showlineedit(self, win):
-        if not self.toggle2 and not self.toggle3:
-            win.lineEdit.resize(win.pushButton_4.size().width(), win.pushButton_4.size().height())
-            animation = QPropertyAnimation(win.lineEdit, b"pos", win.dockWidget)
-            animation.setStartValue(win.pushButton_4.pos())
-            animation.setEndValue(win.pushButton_2.pos())
-            animation.setDuration(150)
-            animation2 = QPropertyAnimation(win.pushButton_2, b"pos", win.dockWidget)
-            animation2.setStartValue(win.pushButton_2.pos())
-            distance = win.pushButton_4.pos().y() - win.pushButton_2.pos().y()
-            animation2.setEndValue(QPoint(win.pushButton_2.pos().x(), win.pushButton_2.pos().y() - distance))
-            animation2.setDuration(150)
-            win.lineEdit.show()
-            animation.start()
-            animation2.start()
-            self.toggle = True
-
-    def closelineedit(self, win):
-        animation = QPropertyAnimation(win.lineEdit, b"pos", win.dockWidget)
-        animation.setStartValue(win.pushButton_2.pos())
-        animation.setEndValue(win.pushButton_4.pos())
-        animation.setDuration(150)
-        animation2 = QPropertyAnimation(win.pushButton_2, b"pos", win.dockWidget)
-        animation2.setStartValue(win.pushButton_2.pos())
-        animation2.setEndValue(QPoint(win.lineEdit.pos()))
-        animation2.setDuration(150)
-        animation.start()
-        animation2.start()
-        win.lineEdit.hide()
-        self.toggle = False
-
-    def showlineedit_2(self, win):
-        if not self.toggle3 and not self.toggle:
-            win.lineEdit_2.resize(win.pushButton_4.size().width(), win.pushButton_4.size().height())
-            animation = QPropertyAnimation(win.lineEdit_2, b"pos", win.dockWidget)
-            animation.setStartValue(win.pushButton_4.pos())
-            animation.setEndValue(win.pushButton_5.pos())
-            animation.setDuration(150)
-            animation2 = QPropertyAnimation(win.pushButton_5, b"pos", win.dockWidget)
-            animation2.setStartValue(win.pushButton_5.pos())
-            animation2.setEndValue(QPoint(win.pushButton_5.pos().x() + 120, win.pushButton_5.pos().y()))
-            animation2.setDuration(150)
-            win.lineEdit_2.show()
-            animation.start()
-            animation2.start()
-            self.toggle2 = True
-
-    def closelineedit_2(self, win):
-        animation = QPropertyAnimation(win.lineEdit_2, b"pos", win.dockWidget)
-        animation.setStartValue(win.lineEdit_2.pos())
-        animation.setEndValue(win.pushButton_4.pos())
-        animation.setDuration(150)
-        animation2 = QPropertyAnimation(win.pushButton_5, b"pos", win.dockWidget)
-        animation2.setStartValue(win.pushButton_5.pos())
-        animation2.setEndValue(QPoint(self.originpos))
-        animation2.setDuration(150)
-        animation.start()
-        animation2.start()
-        win.lineEdit.hide()
-        self.toggle2 = False
-
-    def showslider(self, win):
-        if not self.toggle2 and not self.toggle:
-            animation = QPropertyAnimation(win.horizontalSlider, b"pos", win.dockWidget)
-            animation.setStartValue(win.horizontalSlider.pos())
-            animation.setEndValue(win.checkBox.pos())
-            animation.setDuration(150)
-            animation2 = QPropertyAnimation(win.checkBox, b"pos", win.dockWidget)
-            animation2.setStartValue(win.checkBox.pos())
-            animation2.setEndValue(QPoint(10, 190))
-            animation2.setDuration(150)
-            animation.start()
-            animation2.start()
-            win.pushButton_6.setEnabled(False)
-            win.pushButton_6.setText(str(win.horizontalSlider.value()))
-            self.toggle3 = True
-
-    def closeslider(self, win):
-        animation = QPropertyAnimation(win.horizontalSlider, b"pos", win.dockWidget)
-        animation.setStartValue(win.horizontalSlider.pos())
-        animation.setEndValue(self.originpos2)
-        animation.setDuration(150)
-        animation2 = QPropertyAnimation(win.checkBox, b"pos", win.dockWidget)
-        animation2.setStartValue(win.checkBox.pos())
-        animation2.setEndValue(win.horizontalSlider.pos())
-        animation2.setDuration(150)
-        animation.start()
-        animation2.start()
-        win.pushButton_6.setEnabled(True)
-        win.pushButton_6.setText('Circle Radius')
-        self.toggle3 = False
-
-    def loadimg(self, check, win, path, label, dpi, storelabeling):
-        if os.path.exists(self.last_file) and check:
-            Dialog3(self).show()
-        else:
-            try:
-                m = os.scandir(path)
-                self.filename = (os.path.join(path, file.name) for file in m)
-                try:
-                    imgname = next(self.filename)
-                except BaseException as e:
-                    Messagebox('Directory is empty.')
-                    return
-                storelabeling['Image path'] = imgname
-                self.basename = os.path.splitext(os.path.basename(imgname))[0]
-                self.saveloc = rf'{path}\{self.basename}.json'
-                win.dockWidget.setFloating(True)
-                win.dockWidget_3.setFloating(True)
-                self.readimg(imgname, win, label, self.width, self.height, dpi, storelabeling)
-                self.dir = True
-                self.singal = False
-                win.dockWidget.show()
-                win.dockWidget_3.show()
-                label.show()
-                self.hide()
-            except OSError as e:
-                if e.errno == 20:
-                    win.dockWidget.setFloating(True)
-                    win.dockWidget_3.setFloating(True)
-                    self.basename = os.path.splitext(os.path.basename(path))[0]
-                    self.readimg(path, win, label, self.width, self.height, dpi, storelabeling)
-                    dir = os.path.dirname(os.path.realpath(path))
-                    self.saveloc = rf'{dir}\{self.basename}.json'
-                    storelabeling['Image path'] = path
-                    self.dir = False
-                    self.singal = True
-                    label.show()
-                    win.dockWidget.show()
-                    win.dockWidget_3.show()
-                    self.hide()
-                elif e.errno == 2:
-                    print('Invalid path')
-
-    def updatesaveloc(self, filename):
-        self.storelabeling['Image path'] = filename
-        self.basename = os.path.splitext(os.path.basename(filename))[0]
-        self.saveloc = f'{self.path}\{self.basename}.json'
-
-    def readimg(self, path, win, label, width, height, dpi, storelabeling):
-        if path == 0:
-            self.close()
-            return
-        else:
-            img = cv2.imread(path)
-            if img is not None:
-                img = QPixmap(path)
-                changed = True if self.w != img.width() else False
-                new_w = self.w = int(img.width() // dpi)
-                new_h = self.h = int(img.height() // dpi)
-                realwidth = new_w if new_w <= width else width
-                realheight = new_h if new_h <= height else height
-                windowposx = (width - realwidth)//2
-                windowposy = (height - realheight)//2
-                label.image = img
-                storelabeling['Image_width'] = img.width()
-                storelabeling['Image_height'] = img.height()
-                label.setGeometry(windowposx, windowposy, new_w, new_h)
-                label.setWindowTitle(self.basename)
-                dockwidth = win.dockWidget.width()
-                dockposy = (height - win.dockWidget.height())//2
-                dockposy2 = (height - win.dockWidget_3.height())//2
-                x = (width + realwidth)//2
-                if changed and windowposx - dockwidth < 0:
-                    win.dockWidget.move(0, dockposy)
-                elif changed:
-                    win.dockWidget.move(windowposx - dockwidth, dockposy)
-                if changed and x + win.dockWidget_3.width() >= width:
-                    win.dockWidget_3.move(width - win.dockWidget_3.width(), dockposy2)
-                elif changed:
-                    win.dockWidget_3.move(windowposx + realwidth, dockposy2)
-                label.repaint()
-            else:
-                path = self.getnext()
-                self.readimg(path, win, label, width, height, dpi, storelabeling)
-                self.lastname = path
-
-    def eventFilter(self, src, event):
-        if event.type() == QEvent.DragEnter:
-            event.accept()
-        elif event.type() == QEvent.Drop:
-            self.path = event.mimeData().urls()[0].toLocalFile()
-        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.qline.dockWidget and self.toggle:
-            self.closelineedit(self.qline)
-        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.qline.dockWidget and self.toggle2:
-            self.closelineedit_2(self.qline)
-        elif event.type() == QEvent.MouseButtonPress and QtCore.Qt.LeftButton and src == self.qline.dockWidget and self.toggle3:
-            self.closeslider(self.qline)
-        elif event.type() == QEvent.ContextMenu and QtCore.Qt.RightButton and\
-                src == self.qline.listWidget_2 and self.selected:
-            self.selected = False
-            menu = QMenu()
-            font = QtGui.QFont()
-            font.setFamily("Segoe UI")
-            font.setPixelSize(9)
-            font.setWeight(75)
-            menu.addAction(self.action4)
-            menu.setFont(font)
-            menu.exec_(event.globalPos())
-        elif event.type() == QEvent.KeyPress and event.key() == 16777236 and self.dir:
-            file = self.getnext()
-            if file != 0:
-                self.lastname = file
-                self.label.clear()
-                self.updatesaveloc(file)
-                self.readimg(file, self.qline, self.label, self.width, self.height, self.dpi, self.storelabeling)
-                autosave(self.mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
-                self.storelabeling['Label'].clear()
-                self.templist.clear()
-            else:
-                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
-                self.storelabeling['Label'].clear()
-                self.templist.clear()
-                self.label.clear()
-                self.label.close()
-                self.close()
-        elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Plus and self.dir:
-            file = self.getnext()
-            templist = self.templist
-            if file != 0:
-                self.lastname = file
-                self.label.clear()
-                self.savefile(templist, self.storelabeling, self.saveloc)
-                self.updatesaveloc(file)
-                self.readimg(file, self.qline, self.label, self.width, self.height, self.dpi, self.storelabeling)
-                autosave(self.mainwindow, self.lastname, 'Saving setting', 'Last annotation file')
-                self.storelabeling['Label'].clear()
-                templist.clear()
-            else:
-                self.savefile(templist, self.storelabeling, self.saveloc)
-                self.storelabeling['Label'].clear()
-                templist.clear()
-                self. label.clear()
-                autosave(self.mainwindow, 'None', 'Saving setting', 'Last annotation file')
-                self.label.close()
-                self.close()
-        elif event.type() == QEvent.KeyPress and (event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Plus)\
-                and (self.mainwindow.labelling or self.singal):
-            templist = self.templist
-            self.savefile(templist, self.storelabeling, self.saveloc)
-            self.close()
-            self.qline.dockWidget.close()
-            self.qline.dockWidget_3.close()
-            self.label.close()
-            self.storelabeling['Label'].clear()
-            templist.clear()
-            self.mainwindow.show()
-        elif event.type() == QEvent.Close:
-            self.mainwindow.win.pushButton_3.setEnabled(True)
-            self.mainwindow.show()
-            self.close()
-            self.qline.dockWidget.close()
-            self.qline.dockWidget_3.close()
-        elif event.type() == QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
-            self.mainwindow.win.pushButton_3.setEnabled(True)
-            self.label.close()
-        elif event.type() == QEvent.Resize and src == self.label:
-            w = self.w
-            h = self.h
-            wfactor = w / self.label.geometry().width() if w <= self.width else w / self.label.geometry().width()
-            hfactor = h / self.label.geometry().height() if h <= self.height else h / self.label.geometry().height()
-            self.label.wfactor = wfactor
-            self.label.hfactor = hfactor
-        return super().eventFilter(src, event)
-
-    def getnext(self):
-        try:
-            return next(self.filename)
-        except StopIteration:
-
-            return 0
-        except TypeError:
-            Messagebox('Not an Image file')
-            return 0
-
-    def print(self, var1, var2):
-        self.var1 = var1
-        self.var2 = var2
-
-    def print2(self):
-        self.selected = True
-
-    def highlight(self, label, storerectbrushcolor, storecolor, selectedbox_begin, selectedbox_end, storebegin, storeend, win):
-        current_row = win.listWidget_2.currentRow()
-        prev_index = self.index
-        if not label.selected:
-            index = current_row
-            self.index = index
-            storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
-            storecolor[index] = QColor(248, 255, 106, 255)
-            selectedbox_begin.append(storebegin[index])
-            selectedbox_end.append(storeend[index])
-            label.repaint()
-            label.selected = True
-        elif label.selected and current_row != prev_index:
-            index = current_row
-            storerectbrushcolor[prev_index] = label.rectbrushcolor
-            storecolor[prev_index] = label.brush
-            storerectbrushcolor[index] = QBrush(QColor(200, 200, 200, 40))
-            storecolor[index] = QColor(248, 255, 106, 255)
-            selectedbox_begin[0] = storebegin[index]
-            selectedbox_end[0] = storeend[index]
-            label.repaint()
-            self.index = index
-        elif label.selected and current_row == prev_index:
-            storerectbrushcolor[prev_index] = label.rectbrushcolor
-            storecolor[prev_index] = label.brush
-            selectedbox_begin.pop()
-            selectedbox_end.pop()
-            label.repaint()
-            label.selected = False
-            win.listWidget_2.clearSelection()
-
-    def additem(self):
-        label = self.label
-        storebegin = label.newbegin
-        storeend = label.newend
-        self.templist.append(self.storelabel(storebegin[-1], storeend[-1], self.name))
-
-    def removeitem(self, label):
-        win = self.qline
-        row = win.listWidget_2.currentIndex().row()
-        label.rectlist.pop(row)
-        label.storeend.pop(row)
-        label.storebegin.pop(row)
-        label.newend.pop(row)
-        label.newbegin.pop(row)
-        label.storecolor.pop(row)
-        label.storerectbrushcolor.pop(row)
-        label.selectedbox_begin.clear()
-        label.selectedbox_end.clear()
-        win.listWidget_2.takeItem(row)
-        self.templist.pop(row)
-        self.index = None
-        self.label.selected = False
-        label.currentboxx = None
-        label.prev = None
-        label.update()
-
-    def storelabel(self, initpos: QPoint, finalpos: QPoint, name):
-        labelingdict = {
-            "Name": name,
-            "Init Pos": (initpos.x(), initpos.y()),
-            "final Pos": (finalpos.x(), finalpos.y()),
-        }
-        return labelingdict
-
-    def savefile(self, templist, storelabeling, saveloc):
-        if templist:
-            for index, point in enumerate(templist):
-                if point is not None:
-                    storelabeling['Label'].append(templist[index])
-            with open(saveloc, mode='w') as file:
-                json.dump(storelabeling, file, indent=4)
-                file.close()
-        else:
-            with open(saveloc, mode='w') as file:
-                json.dump(storelabeling, file, indent=4)
-                file.close()
-
-    def popupdialog(self, pos, dialog, label):
-        y = pos.y() + dialog.dialog.frame_2.height() - label.pos().y() - label.geometry().height()
-        x = pos.x() + dialog.dialog.frame_2.width() - label.pos().x() - label.geometry().width()
-        if y > 0 and x < 0:
-            dialog.move(pos.x(), pos.y()-y)
-        elif y < 0 and x > 0:
-            dialog.move(pos.x() - x - 20, pos.y())
-        elif x > 0 and y > 0:
-            dialog.move(pos.x() - x - 20, pos.y()-y)
-        else:
-            dialog.move(pos)
-        dialog.show()
-
-    def go2lastsaved(self, win, basename, dpi, storelabeling):
-        label = self.label
-        last_file = self.last_file
-        dir = os.path.dirname(last_file)
-        self.path = dir
-        m = os.scandir(dir)
-        for file in m:
-            path = os.path.join(dir, file.name)
-            if os.path.samefile(path, last_file):
-                basename = os.path.splitext(os.path.basename(path))[0]
-                win.dockWidget.setFloating(True)
-                win.dockWidget_3.setFloating(True)
-                self.readimg(path, win, label, self.width, self.height, dpi, storelabeling)
-                win.dockWidget.show()
-                win.dockWidget_3.show()
-                label.show()
-                self.storelabeling['Image path'] = path
-                break
-        self.filename = (os.path.join(dir, file.name) for file in m)
-        self.saveloc = f'{self.path}\{basename}.json'
-        self.dir = True
-        self.singal = False
-
-
-class Dialog(QDialog):
-    def __init__(self, parent, mainwindow):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        dialog = self.dialog = Ui_Dialog()
-        dialog.setupUi(self)
-        self.setWindowModality(QtCore.Qt.WindowModal)
-        self.mainwin = mainwindow
-        listWidget = dialog.listWidget
-        listWidget.itemPressed.connect(lambda: self.setlabel(self.mainwin, listWidget))
+        self.win = Ui_MainWindow()
+        win = self.win
+        win.setupUi(self)
+        self.setWindowFlag(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        # apply shadow effect
+        shadow(self)
+        # get dpi ratio
+        self.dpi = self.devicePixelRatioF()
+        # get config file path
+        self.path = rf'C:\Users\{os.getlogin()}\Documents\Sclabel'
+        path = self.path
+        self.offset = None
+        self.check = None
+        self.height = None
+        self.width = None
+        self.name = None
+        self.save = None
+        self.readpath = None
+        self.pos2 = None
+        self.temp = None
+        self.x = None
+        self.y = None
+        self.filename = None
+        self.settingw = None
+        self.Aug_load = None
+        self.Aug_name = None
+        self.posx = 0
+        self.posy = 0
+        self.lastpos = None
+        self.slidervalue = 0
+        self.image_format = None
+        self.imglabel = None
+        self.label = None
+        self.labelcheckbox = None
+        self.labelling = False
+        # get config file name
+        self.configname = 'config.ini'
+        # read config file and create one if doesn't exist
+        readdir(self, path, os.getlogin())
+
+        # initialize var
+        self.init_var(path, win)
+
+        slidervalue = self.slidervalue
+        compression = self.compression = int(round(100/slidervalue, 0))
+        # image saving params
+        self.imgdict = {
+            '0': (int(cv2.IMWRITE_JPEG_QUALITY), '.jpg', slidervalue),
+            '1': (int(cv2.IMWRITE_PNG_COMPRESSION), '.png', compression),
+            '2': (int(cv2.IMWRITE_TIFF_COMPRESSION), '.tiff', compression),
+            '3': (None, '.bmp', None),
+            '4': (None, '.jp2', None),
+        }
+        # set int only for inputbox
+        onlyint = self.onlyint = QIntValidator()
+        win.lineEdit.setValidator(onlyint)
+        win.lineEdit_2.setValidator(onlyint)
+        # install eventfilter for frame_3
+        win.frame_3.installEventFilter(self)
+        # connect signals to methods
+        win.settings.clicked.connect(lambda: self.settingwin(self.pos(), win.frame_2))
+        win.create.clicked.connect(lambda: self.cap_opennewwin(win, self.slidervalue))
+        win.pushButton_3.clicked.connect(lambda: self.annotation(win, win.frame))
+        win.checkBox.toggled.connect(lambda: self.update4(path, 'check', win.checkBox.isChecked()))
+        win.checkBox_2.toggled.connect(lambda: self.update3(path, 'labeling function', win.checkBox_2.isChecked()))
+        win.lineEdit.textEdited.connect(lambda: w_update(self, 'Saving setting', 'width', win.lineEdit))
+        win.lineEdit_2.textEdited.connect(lambda: h_update(self, 'Saving setting', 'height', win.lineEdit_2))
+
+        self.move(self.posx, self.posy)
+        self.show()
+    
+    # open annotation window
+    def annotation(self, win, frame):
+        self.window2 = QLineEditMask(geo.width(), geo.height(), self)
+        window2 = self.window2
+        window2.show()
+        point = frame.mapToGlobal(frame.pos())
+        x = point.x() + frame.width()//2 - window2.geometry().width()//2
+        y = point.y() + frame.height()//2 - window2.geometry().height()//2 - 60
+        window2.move(x, y)
+        win.pushButton_3.setEnabled(False)
+        self.labelling = True
+    
+    def directannotate(self, path):
+        self.window2 = QLineEditMask(geo.width(), geo.height(), self)
+        window = self.window2
+        window_win = window.qline
+        saveloc = get_label_filename(path)
+        window.storelabeling['Image path'] = path
+        window.saveloc = saveloc
+        window_win.dockWidget.show()
+        window_win.dockWidget_3.show()
+        window.readimg(path, window_win, window.label, geo.width(), geo.height(), self.dpi, window.storelabeling)
+        window.dir = False
+        window.singal = True
+        window_win.dockWidget.setFloating(True)
+        window_win.dockWidget_3.setFloating(True)
+        window.label.show()
+        window.hide()
+
+    def init_var(self, path, win):
+        config = configparser.ConfigParser()
+        config.read(rf'{path}\{self.configname}')
+        readpath = self.readpath = config.get('Saving setting', 'Location')
+        self.name = config.get('Saving setting', 'Image name')
+        save = self.save = config.get('Saving setting', 'Save Location')
+        self.Aug_name = config.get('Saving setting', 'Augment Image name')
+        Aug_load = self.Aug_load = config.get('Saving setting', 'Augment Data load')
+        width = self.width = config.get('Saving setting', 'width')
+        height = self.height = config.get('Saving setting', 'height')
+        self.posx = int(config.get('Saving setting', 'last_posx'))
+        self.posy = int(config.get('Saving setting', 'last_posy'))
+        check = self.check = config.get('Saving setting', 'check')
+        self.slidervalue = int(config.get('Saving setting', 'Quality'))
+        self.image_format = config.get('Saving setting', 'Image Format')
+        imglabel = self.imglabel = config.get('Saving setting', 'Label Location')
+        labelcheckbox = self.labelcheckbox = config.get('Saving setting', 'Labeling Function')
+
+        win.lineEdit.setText(width)
+        win.lineEdit_2.setText(height)
+        self.checkTrue(check, win.checkBox)
+        self.checkTrue(labelcheckbox, win.checkBox_2)
+        open_dir(readpath, False)
+        open_dir(save, False)
+        open_dir(Aug_load, False)
+        open_dir(imglabel, False)
+
+    def checkTrue(self, key, checkbox):
+        checkbox.setChecked(True) if key == 'True' else checkbox.setChecked(False)
+
+    def update3(self, path, key, statement: bool):
+        checkbox_update(path, key, statement)
+        self.labelcheckbox = statement
+
+    def update4(self, path, key, statement: bool):
+        checkbox_update(path, key, statement)
+        self.check = statement
+
+    @QtCore.pyqtSlot(int, int)
+    def updatelabelinfo(self, width, height):
+        label = self.label
+        if label is not None:
+            label.x1 = width
+            label.y1 = height
+        else:
+            self.width = width
+            self.height = height
+    
+    # open setting window
+    def settingwin(self, pos, frame_2):
+        pos = pos + frame_2.pos()
+        self.settingw = SettingWindow(pos, frame_2.size(), self)
+        settingw = self.settingw
+        settingw.show()
+
+    # open window when image is captured
+    def cap_opennewwin(self, win, slidervalue):
+        self.temp = tempfile.TemporaryDirectory()
+        temp = self.temp
+        name = temp.name
+        MoniterDev = win32api.EnumDisplayMonitors(None, None)
+        w = MoniterDev[0][2][2]
+        h = MoniterDev[0][2][3]
+        temploc = rf'{name}/image.jpg'
+        if win.checkBox.isChecked():
+            self.hide()
+        window_capture(temploc, 0, 0, w, h)
+        self.open_window(temploc, temp, slidervalue, win)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return:
-            self.additem(self.dialog)
-            self.dialog.lineEdit_4.clear()
+        self.cap_opennewwin(self.win, self.slidervalue) if event.key() == 39 else False
 
-    def setlabel(self, mainwin, listWidget):
-        data = listWidget.currentItem()
-        mainwin.name = data.text()
-        mainwin.additem()
-        text = f'{mainwin.name}  Begin: ({mainwin.var1.x()},{mainwin.var1.y()})' \
-               f'  End: ({mainwin.var2.x()},{mainwin.var2.y()})'
-        list_widget2 = mainwin.qline.listWidget_2
-        list_widget2.addItem(text)
-        index = list_widget2.count()-1
-        list_widget2.item(index).setData(Qt.UserRole, (mainwin.name, mainwin.var1, mainwin.var2))
-        self.close()
+    def eventFilter(self, source, event):
+        win = self.win
+        offset = self.offset
+        if source == win.frame_3 and event.type() == QtCore.QEvent.MouseMove and QtCore.Qt.LeftButton and offset:
+            self.pos2 = self.pos() + event.globalPos() - offset
+            self.move(self.pos2)
+            self.offset = event.globalPos()
+            event.accept()
+        elif source == win.frame_3 and event.type() == QtCore.QEvent.MouseButtonPress and QtCore.Qt.LeftButton:
+            self.offset = event.globalPos()
+        elif source == win.frame_3 and event.type() == QtCore.QEvent.MouseButtonRelease and QtCore.Qt.LeftButton:
+            lastpos(self.path, self.pos2) if self.pos2 is not None else False
 
-    def additem(self, dialog):
-        text = dialog.lineEdit_4.text()
-        if text:
-            dialog.listWidget.addItem(text)
+        return super().eventFilter(source, event)
+    
+    def open_window(self, temploc, temp, quality, win):
+        factor = self.dpi
+        image = QPixmap(temploc)
+        image.setDevicePixelRatio(factor)
+        x = image.width()
+        y = image.height()
+        self.window = OpenWindow()
+        wind = self.window
+        wind.filename = temploc
+        wind.new_win.setupUi(wind)
+        newx = int(x // factor)
+        newy = int(y // factor)
+        self.label = MyLabel2(temploc, temp, x, y, newx, newy, self, quality, win.checkBox.isChecked(), wind)
+        label = self.label
+        label.setPixmap(image)
+        self.updateidct()
+        label.imagedict = self.imgdict
+        label.setFocusPolicy(Qt.StrongFocus)
+        label.resize(newx, newy)
+        label.setMouseTracking(True)
+        wind.setGeometry(0, 0, x, y)
+        wind.show()
+        
+    def updateidct(self):
+        slidervalue = self.slidervalue
+        self.compression = int(round(100/slidervalue, 0))
+        compression = self.compression
+        self.imgdict = {
+            '0': (int(cv2.IMWRITE_JPEG_QUALITY), '.jpg', slidervalue),
+            '1': (int(cv2.IMWRITE_PNG_COMPRESSION), '.png', compression),
+            '2': (int(cv2.IMWRITE_TIFF_COMPRESSION), '.tiff', compression),
+            '3': (None, '.bmp', None),
+            '4': (None, '.jp2', None),
+        }
 
 
-class Dialog3(QDialog):
-    def __init__(self, parent):
-        super().__init__(parent)
-        dialog = self.dialog = Dialog2.Ui_Dialog()
-        dialog.setupUi(self)
-        font = QtGui.QFont()
-        font.setPixelSize(12)
-        buttonBox = dialog.buttonBox
-        dpi = parent.dpi
-        storelabeling = parent.storelabeling
-        buttonBox.accepted.connect(lambda: parent.go2lastsaved(parent.win, parent.basename, dpi, storelabeling))
-        buttonBox.rejected.connect(lambda: parent.loadimg(False, parent.win, parent.path, parent.label, dpi, storelabeling))
-        buttonBox.button(QDialogButtonBox.Ok).setFont(font)
-        buttonBox.button(QDialogButtonBox.Cancel).setFont(font)
+os.environ['QT_SCALE_FACTOR'] = str(ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
+os.environ['QT_FONT_DPI'] = str(ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
+if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    geo = app.desktop().screenGeometry(0)
+    win = Win()
+    app.exec()
