@@ -19,8 +19,11 @@ class Win(QMainWindow):
         win.setupUi(self)
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
+        # apply shadow effect
         shadow(self)
+        # get dpi ratio
         self.dpi = self.devicePixelRatioF()
+        # get config file path
         self.path = rf'C:\Users\{os.getlogin()}\Documents\Sclabel'
         path = self.path
         self.offset = None
@@ -47,7 +50,9 @@ class Win(QMainWindow):
         self.label = None
         self.labelcheckbox = None
         self.labelling = False
+        # get config file name
         self.configname = 'config.ini'
+        # read config file and create one if doesn't exist
         readdir(self, path, os.getlogin())
 
         # initialize var
@@ -55,6 +60,7 @@ class Win(QMainWindow):
 
         slidervalue = self.slidervalue
         compression = self.compression = int(round(100/slidervalue, 0))
+        # image saving params
         self.imgdict = {
             '0': (int(cv2.IMWRITE_JPEG_QUALITY), '.jpg', slidervalue),
             '1': (int(cv2.IMWRITE_PNG_COMPRESSION), '.png', compression),
@@ -62,12 +68,13 @@ class Win(QMainWindow):
             '3': (None, '.bmp', None),
             '4': (None, '.jp2', None),
         }
-
+        # set int only for inputbox
         onlyint = self.onlyint = QIntValidator()
         win.lineEdit.setValidator(onlyint)
         win.lineEdit_2.setValidator(onlyint)
-
+        # install eventfilter for frame_3
         win.frame_3.installEventFilter(self)
+        # connect signals to methods
         win.settings.clicked.connect(lambda: self.settingwin(self.pos(), win.frame_2))
         win.create.clicked.connect(lambda: self.cap_opennewwin(win, self.slidervalue))
         win.pushButton_3.clicked.connect(lambda: self.annotation(win, win.frame))
@@ -77,9 +84,9 @@ class Win(QMainWindow):
         win.lineEdit_2.textEdited.connect(lambda: h_update(self, 'Saving setting', 'height', win.lineEdit_2))
 
         self.move(self.posx, self.posy)
-
         self.show()
-
+    
+    # open annotation window
     def annotation(self, win, frame):
         self.window2 = QLineEditMask(geo.width(), geo.height(), self)
         window2 = self.window2
@@ -90,7 +97,7 @@ class Win(QMainWindow):
         window2.move(x, y)
         win.pushButton_3.setEnabled(False)
         self.labelling = True
-
+    
     def directannotate(self, path):
         self.window2 = QLineEditMask(geo.width(), geo.height(), self)
         window = self.window2
@@ -155,13 +162,15 @@ class Win(QMainWindow):
         else:
             self.width = width
             self.height = height
-
+    
+    # open setting window
     def settingwin(self, pos, frame_2):
         pos = pos + frame_2.pos()
         self.settingw = SettingWindow(pos, frame_2.size(), self)
         settingw = self.settingw
         settingw.show()
 
+    # open window when image is captured
     def cap_opennewwin(self, win, slidervalue):
         self.temp = tempfile.TemporaryDirectory()
         temp = self.temp
@@ -192,7 +201,7 @@ class Win(QMainWindow):
             lastpos(self.path, self.pos2) if self.pos2 is not None else False
 
         return super().eventFilter(source, event)
-
+    
     def open_window(self, temploc, temp, quality, win):
         factor = self.dpi
         image = QPixmap(temploc)
@@ -215,7 +224,7 @@ class Win(QMainWindow):
         label.setMouseTracking(True)
         wind.setGeometry(0, 0, x, y)
         wind.show()
-
+        
     def updateidct(self):
         slidervalue = self.slidervalue
         self.compression = int(round(100/slidervalue, 0))
