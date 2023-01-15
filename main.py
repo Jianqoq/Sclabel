@@ -101,10 +101,12 @@ class Win(QMainWindow):
     def directannotate(self, path):
         self.window2 = QLineEditMask(geo.width(), geo.height(), self)
         window = self.window2
-        window_win = window.win
+        window_win = window.qline
         saveloc = get_label_filename(path)
         window.storelabeling['Image path'] = path
         window.saveloc = saveloc
+        window_win.dockWidget.setFloating(True)
+        window_win.dockWidget_3.setFloating(True)
         window_win.dockWidget.show()
         window_win.dockWidget_3.show()
         window.readimg(path, window_win, window.label, geo.width(), geo.height(), self.dpi, window.storelabeling)
