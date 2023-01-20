@@ -89,7 +89,7 @@ Out: array([[[1, 1, 1],
 In this software, a red rectangular will be displayed and its dimension represents the slicing area when you are doing image cropping.
 
 ![Image text](https://raw.githubusercontent.com/Jianqoq/Sclabel/main/Image/b6e9515a10957967ddee00befa6ea40.png)
-# How to convert JSON file to Yolo format
+# How to convert JSON format to Yolo format
 In the Dataset_manipulation_example/dataset_manipulation.py file, I provided an example to do this. Functions are 'convert' and 'convert_json2label'
 
 The first number represents the class name. The second and the third represent the center point of the bounding box relative to the image. The fourth and the fifth represent the width and height of the bounding box relative to the image.
