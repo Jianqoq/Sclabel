@@ -26,7 +26,7 @@ You can either press Key_Minus or click the create button. If you want to cut th
 
 2. Setting window
 
-See the notes down below. The label file name would be the same as the image file just with a different format. This location is not supported yet, currently, the label file will be saved in the same directory as the image file.
+See the notes down below. The label file name would be the same as the image file just with a different format. Annotation file location function is not supported yet, currently, the label file will be saved in the same directory as the image file.
 
 ![Image text](https://github.com/Jianqoq/Sclabel/blob/main/Image/setting.png)
 
@@ -151,7 +151,7 @@ for initpt, finalpt, name in points:
     return f'{classdict[name]} {center_x} {center_y} {relative_width} {relative_height}\n'
 ```
 
-The final code would be pretty clean and with high performance
+The final code would be pretty clean with high performance
 ```
 dic = {
     'sdv': 1,
@@ -202,7 +202,7 @@ final_image = cv2.warpAffine(image, Matrix, (cols, rows))                       
 
 # How to let painted bounding box be selectable and resizable
 
-First, Use a list to store the rect and draw all the rect in paintevent. Store all the rect info into other lists every time a new rect is created. During MousemoveEvent, track and use for loop to check if the mouse is close to the edges. The function can be found at functions/Draw.py and cython_pyx/Find_edge.pyx.
+First, Use a list to store the rect and draw all the rect in paintevent. Store all the rect info into different lists every time a new rect is created. During MousemoveEvent, track and use for loop to check if the mouse is close to the edges. The function can be found at functions/Draw.py and cython_pyx/Find_edge.pyx.
 ```
 def paintEvent(self, event):
   super().paintEvent(event)
@@ -218,7 +218,7 @@ def paintEvent(self, event):
 ```
 
 # How to print progress while doing a large dataset manipulation
-In the functions/dataset_manipulation.py file, the function 'print_result' can perform such a function.
+In the functions/dataset_manipulation.py file, the function called 'print_result' can perform such a functionality.
 
 First, we create a list with 18 space strings and 1 bracket [ or ] at both ends of the list
 ```
@@ -239,7 +239,7 @@ The final code would be
 In: print_result(40, 100)
 Out: [■■■■■■            ] 40.00%
 ```
-# How to split image set to train and validation
+# How to split image set to train set and validation set
 
 Such a function can be found in the functions/dataset_manipulation.py file.
 First, we get the list containing all the image file ending with '.png'
