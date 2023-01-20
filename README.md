@@ -26,7 +26,7 @@ You can either press Key_Minus or click the create button. If you want to cut th
 
 2. Setting window
 
-See the notes down below. The label file name would be the same as the image file just with a different format. Annotation file location function is not supported yet, currently, the label file will be saved in the same directory as the image file.
+See the notes down below. The label file name would be the same as the image file just with a different format. Annotation file location function is not supported yet, currently, the label file will be saved in the same directory with the same name as the image file's.
 
 ![Image text](https://github.com/Jianqoq/Sclabel/blob/main/Image/setting.png)
 
