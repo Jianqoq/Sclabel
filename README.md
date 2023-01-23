@@ -8,7 +8,7 @@ Library: PyQt5, Numpy, Opencv, Cython, pywin32
 
 Interpreter: Python 3.10 or above
 
-Operation system: windows
+Operating system: windows
 
 # Features
 1. Take full or fixed-size screenshots.
