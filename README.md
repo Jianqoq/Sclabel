@@ -45,7 +45,7 @@ Double-click can select a specific box then you will only be able to resize it. 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif3.gif)
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif4.gif)
 
-When you are done in single file annotation mode, press Key_Return or Key_Plus will exit the annotation mode and a JSON file will be generated in the same directory of the image file. Press Key_Plus or Key_Return can exit the software and generate labeling file. 
+When you are done in single file annotation mode, press Key_Return or Key_Plus will exit the annotation mode and a JSON file will be generated in the same directory of the image file.
 
 ![](https://github.com/Jianqoq/Sclabel/blob/main/Image/gif5.gif)
 
